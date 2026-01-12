@@ -1293,6 +1293,31 @@ namespace hooks
 		}
 	}
 
+	bool AttackActionHook::PerformAttackAction(RE::TESActionData *a_actionData)
+	{
+		auto attacker = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
+		auto targ = attacker ? attacker->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
+		// auto scarClip = attacker ? DataHandler::GetSCARDataClip(attacker) : nullptr;
+		// if (scarClip)
+		// {
+		// 	if (targ && attacker->GetActorRuntimeData().currentProcess && !attacker->IsPlayerRef() && attacker->RequestLOS(targ.get()) && AttackRangeCheck::CheckPathing(attacker, targ.get()))
+		// 	{
+		// 		DEBUG("Find SCAR Action Data in clip \"{}\" of \"{}\"", scarClip->animationName.c_str(), attacker->GetName());
+		// 		auto dataArr = DataHandler::GetSCARActionData(scarClip);
+		// 		std::sort(dataArr.begin(), dataArr.end(), SCARActionData::SortByWeight);
+		// 		for (auto data : dataArr)
+		// 		{
+		// 			if (data.PerformSCARAction(attacker, targ.get()))
+		// 				return true;
+		// 		}
+		// 	}
+
+		// 	return false;
+		// }
+
+		return _PerformAttackAction(a_actionData);
+	}
+
 	void OnMeleeHitHook::Process_Updates(RE::Actor *a_actor, std::chrono::steady_clock::time_point time_now)
 	{
 		if (!a_actor)
