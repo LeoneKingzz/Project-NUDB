@@ -1277,17 +1277,17 @@ namespace hooks
 
 			// GetSingleton()->Process_Updates(a_actor, std::chrono::steady_clock::now());
 
-			if (auto combatcontrol = a_actor->GetActorRuntimeData().combatController; combatcontrol)
-			{
-				if (getrace_IsWerebeast(a_actor))
-				{
-					Mod_CombatInventory_Claws(a_actor, combatcontrol);
-				}
-				else if (GetBoolVariable(a_actor, "bRBL_IsModdedClaws"))
-				{
-					Mod_CombatInventory_Claws_Reset(a_actor, combatcontrol);
-				}
-			}
+			// if (auto combatcontrol = a_actor->GetActorRuntimeData().combatController; combatcontrol)
+			// {
+			// 	if (getrace_IsWerebeast(a_actor))
+			// 	{
+			// 		Mod_CombatInventory_Claws(a_actor, combatcontrol);
+			// 	}
+			// 	else if (GetBoolVariable(a_actor, "bRBL_IsModdedClaws"))
+			// 	{
+			// 		Mod_CombatInventory_Claws_Reset(a_actor, combatcontrol);
+			// 	}
+			// }
 
 			// RE::TESActionData a_data;
 		}

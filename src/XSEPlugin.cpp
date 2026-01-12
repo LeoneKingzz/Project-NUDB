@@ -32,6 +32,6 @@ void Init()
 }
 
 void Load(){
-	hooks::OnMeleeHitHook::install_protected();
+	// hooks::OnMeleeHitHook::install_protected();
 	// hooks::DrinkPotionHook::Install();
 }
