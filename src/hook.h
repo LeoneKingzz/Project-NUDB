@@ -685,6 +685,35 @@ namespace hooks
 		Settings& operator=(const Settings&) = delete;
 		Settings& operator=(Settings&&) = delete;
 	};
+
+	class AttackActionHook
+	{
+	public:
+		static void InstallHook()
+		{
+			SKSE::AllocTrampoline(1 << 4);
+			auto &trampoline = SKSE::GetTrampoline();
+
+			REL::Relocation<std::uintptr_t> AttackActionBase{RELOCATION_ID(48139, 49170)};
+			_PerformAttackAction = trampoline.write_call<5>(AttackActionBase.address() + REL::Relocate(0x4D7, 0x435), PerformAttackAction);
+			// INFO("Hook PerformAttackAction!");
+		}
+
+	private:
+		static bool PerformAttackAction(RE::TESActionData *a_actionData);
+
+		static inline REL::Relocation<decltype(PerformAttackAction)> _PerformAttackAction;
+	};
+
+	// class AttackRangeCheck
+	// {
+	// public:
+	// 	static bool CheckPathing(RE::Actor *a_attacker, RE::Actor *a_target);
+
+	// 	static bool WithinAttackRange(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
+
+	// 	static void DrawOverlay(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
+	// };
 };
 
 constexpr uint32_t hash(const char* data, size_t const size) noexcept
