@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include <vector>
 #include <thread>
+#include <numbers>
 #include <MinHook.h>
 #include "ClibUtil/editorID.hpp"
 #pragma warning(disable: 4100)
@@ -697,7 +698,7 @@ namespace hooks
 			REL::Relocation<std::uintptr_t> AttackActionBase{RELOCATION_ID(48139, 49170)};
 			_PerformAttackAction = trampoline.write_call<5>(AttackActionBase.address() + REL::Relocate(0x4D7, 0x435), PerformAttackAction);
 			// INFO("Hook PerformAttackAction!");
-		}
+		};
 
 	private:
 		static bool PerformAttackAction(RE::TESActionData *a_actionData);
@@ -705,15 +706,84 @@ namespace hooks
 		static inline REL::Relocation<decltype(PerformAttackAction)> _PerformAttackAction;
 	};
 
-	// class AttackRangeCheck
-	// {
-	// public:
-	// 	static bool CheckPathing(RE::Actor *a_attacker, RE::Actor *a_target);
+	class AttackRangeCheck
+	{
+	public:
+		static bool CanNavigateToPosition(RE::Actor *a_actor, const RE::NiPoint3 &a_pos, const RE::NiPoint3 &a_new_pos, float a_speed, float a_distance)
+		{
+			using func_t = decltype(&CanNavigateToPosition);
+			REL::Relocation<func_t> func{RELOCATION_ID(46050, 47314)};
+			return func(a_actor, a_pos, a_new_pos, a_speed, a_distance);
+		};
 
-	// 	static bool WithinAttackRange(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
+		static float GetBoundRadius(RE::Actor *a_actor)
+		{
+			using func_t = decltype(&GetBoundRadius);
+			REL::Relocation<func_t> func{RELOCATION_ID(36444, 37439)};
+			return func(a_actor);
+		};
 
-	// 	static void DrawOverlay(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
-	// };
+		static bool CheckPathing(RE::Actor *a_attacker, RE::Actor *a_target);
+
+		static bool WithinAttackRange(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
+
+		static void DrawOverlay(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
+	};
+
+	namespace SCAR
+	{
+		// using json = nlohmann::json;
+
+		using DefaultObject = RE::BGSDefaultObjectManager::DefaultObject;
+
+		struct SCARActionData
+		{
+		private:
+			float weight = 0.f;
+
+			std::string IdleAnimationEditorID = "";
+
+			float minDistance = 0.f;
+
+			float maxDistance = 150.f;
+
+			float startAngle = -60.f;
+
+			float endAngle = 60.f;
+
+			float chance = 100.f;
+
+			std::string actionType = "RA";
+
+			std::optional<float> weaponLength;
+
+		public:
+			// friend void from_json(const json &j, SCARActionData &a_data);
+			friend class DataHandler;
+
+			bool PerformSCARAction(RE::Actor *a_attacker, RE::Actor *a_target);
+
+			static bool SortByWeight(SCARActionData a_data1, SCARActionData a_data2);
+
+			static bool PlayIdle(RE::AIProcess *a_this, RE::Actor *a_actor, RE::DEFAULT_OBJECT a_action, RE::TESIdleForm *a_idle, bool a_arg5, bool a_arg6, RE::TESObjectREFR *a_target)
+			{
+				using func_t = decltype(&PlayIdle);
+				REL::Relocation<func_t> func{RELOCATION_ID(38290, 39256)};
+				return func(a_this, a_actor, a_action, a_idle, a_arg5, a_arg6, a_target);
+			};
+
+		private:
+			const DefaultObject GetActionObject() const;
+			_NODISCARD const float GetStartAngle() const { return startAngle / 180.f * std::numbers::pi; };
+			_NODISCARD const float GetEndAngle() const { return endAngle / 180.f * std::numbers::pi; };
+
+			_NODISCARD const bool IsLeftAttack() const;
+			_NODISCARD const bool IsBashAttack() const;
+			_NODISCARD float GetWeaponReach(RE::Actor *a_attacker) const;
+		};
+
+		// void from_json(const json &j, SCARActionData &a_data);
+	}
 };
 
 constexpr uint32_t hash(const char* data, size_t const size) noexcept

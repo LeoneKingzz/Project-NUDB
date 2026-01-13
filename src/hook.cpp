@@ -1293,6 +1293,160 @@ namespace hooks
 		}
 	}
 
+	bool AttackRangeCheck::CheckPathing(RE::Actor *a_attacker, RE::Actor *a_target)
+	{
+		if (!a_attacker || !a_target || !a_attacker->Get3D() || !a_target->Get3D() || !a_target->GetActorRuntimeData().currentProcess || !a_attacker->GetActorRuntimeData().currentProcess)
+			return false;
+
+		auto GetMeleeWeaponRange = [](RE::Actor *a_actor) -> float
+		{
+			using TYPE = RE::CombatInventoryItem::TYPE;
+			float result = 0.f;
+			if (a_actor)
+			{
+				auto combatCtrl = a_actor->GetActorRuntimeData().combatController;
+				auto combatInv = combatCtrl ? combatCtrl->inventory : nullptr;
+				if (combatInv)
+				{
+					for (const auto item : combatInv->equippedItems)
+					{
+						if (item.item && item.item->GetType() == TYPE::kMelee)
+						{
+							auto range = item.item->GetMaxRange();
+							if (range > result)
+								result = range;
+						}
+					}
+				}
+			}
+
+			return result;
+		};
+
+		auto attackerPos = a_attacker->Get3D()->world.translate;
+		auto targPos = a_target->Is3rdPersonVisible() ? a_target->Get3D()->world.translate : a_target->GetPosition();
+		auto matrix = a_attacker->Get3D()->world.rotate;
+
+		RE::NiMatrix3 invMatrix = matrix.Transpose();
+
+		auto localVector = invMatrix * (targPos - attackerPos);
+		auto localDistance = std::sqrtf(localVector.x * localVector.x + localVector.y * localVector.y);
+		if (localDistance <= GetMeleeWeaponRange(a_attacker) + GetBoundRadius(a_target))
+			return true;
+
+		return CanNavigateToPosition(a_attacker, a_attacker->GetPosition(), a_target->GetPosition(), 2.0f, GetBoundRadius(a_attacker));
+	}
+
+	bool AttackRangeCheck::WithinAttackRange(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle)
+	{
+		if (!a_attacker || !a_targ || !a_attacker->Get3D() || !a_targ->Get3D())
+			return false;
+
+		max_distance += GetBoundRadius(a_targ);
+		if (min_distance > 0.f)
+			min_distance += GetBoundRadius(a_targ) + GetBoundRadius(a_attacker);
+
+		auto attackerPos = a_attacker->Get3D()->world.translate;
+		auto targPos = a_targ->Is3rdPersonVisible() ? a_targ->Get3D()->world.translate : a_targ->GetPosition();
+		auto matrix = a_attacker->Get3D()->world.rotate;
+
+		RE::NiMatrix3 invMatrix = matrix.Transpose();
+
+		auto GetAabbTopBottomHeight = [](RE::Actor *a_actor, float &TopHeight, float &BottomHeight) -> bool
+		{
+			if (a_actor->Is3rdPersonVisible())
+			{
+				// ObjectBound bound;
+				// if (Util::GetBBCharacter(a_actor, bound))
+				// {
+				// 	TopHeight = std::max(bound.worldBoundMin.z, bound.worldBoundMax.z);
+				// 	BottomHeight = std::min(bound.worldBoundMin.z, bound.worldBoundMax.z);
+				// 	return true;
+				// }
+			}
+			else
+			{
+				TopHeight = a_actor->GetPositionZ() + a_actor->GetBoundMax().z;
+				BottomHeight = a_actor->GetPositionZ();
+				return true;
+			}
+
+			return false;
+		};
+
+		float attackerBottomHeight, attackerTopHeight, targBottomHeight, targTopHeight;
+		if (!GetAabbTopBottomHeight(a_attacker, attackerTopHeight, attackerBottomHeight) || !GetAabbTopBottomHeight(a_targ, targTopHeight, targBottomHeight))
+			return false;
+
+		auto CheckHeight = [](const float attackerBottomHeight, const float attackerTopHeight, const float targBottomHeight, const float targTopHeight) -> bool
+		{
+			return (attackerTopHeight >= targTopHeight && attackerBottomHeight <= targTopHeight) || (attackerTopHeight >= targBottomHeight && attackerBottomHeight <= targBottomHeight) || (attackerTopHeight <= targTopHeight && attackerBottomHeight >= targBottomHeight);
+		};
+
+		if (!CheckHeight(attackerBottomHeight, attackerTopHeight, targBottomHeight, targTopHeight))
+			return false;
+
+		auto localVector = invMatrix * (targPos - attackerPos);
+
+		auto localDistance = std::sqrtf(localVector.x * localVector.x + localVector.y * localVector.y);
+		auto localAngle = std::atan2f(localVector.x, localVector.y);
+		if (localAngle < -std::numbers::pi)
+			localAngle += 2 * std::numbers::pi;
+		else if (localAngle > std::numbers::pi)
+			localAngle -= 2 * std::numbers::pi;
+
+		const bool withInAngle = a_startAngle < a_endAngle ? localAngle >= a_startAngle && localAngle <= a_endAngle : !(localAngle >= a_endAngle && localAngle <= a_startAngle);
+
+		return localDistance <= max_distance && localDistance >= min_distance && withInAngle;
+	}
+
+	const SCAR::DefaultObject SCAR::SCARActionData::GetActionObject() const
+	{
+		static std::map<const std::string, const DefaultObject> actionMap = {
+			{"RA", DefaultObject::kActionRightAttack},
+			{"RPA", DefaultObject::kActionRightPowerAttack},
+			{"LA", DefaultObject::kActionLeftAttack},
+			{"LPA", DefaultObject::kActionLeftPowerAttack},
+			{"DA", DefaultObject::kActionDualAttack},
+			{"DPA", DefaultObject::kActionDualPowerAttack},
+			{"BA", DefaultObject::kActionRightAttack},
+			{"BPA", DefaultObject::kActionRightPowerAttack},
+			{"IDLE", DefaultObject::kActionIdle}};
+
+		auto itr = actionMap.find(actionType);
+		return itr != actionMap.end() ? itr->second : DefaultObject::kActionRightAttack;
+	}
+
+	bool SCAR::SCARActionData::PerformSCARAction(RE::Actor *a_attacker, RE::Actor *a_target)
+	{
+		if (!a_attacker || !a_target || !a_attacker->GetActorRuntimeData().currentProcess)
+			return false;
+
+		const float weaponReach = GetWeaponReach(a_attacker);
+		if (AttackRangeCheck::WithinAttackRange(a_attacker, a_target, maxDistance + weaponReach, minDistance, GetStartAngle(), GetEndAngle()))
+		{
+			auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>(IdleAnimationEditorID);
+			if (!IdleAnimation)
+			{
+				ERROR("Not Vaild Idle Animation Form Get: \"{}\"!", IdleAnimationEditorID);
+				return false;
+			}
+
+			auto result = PlayIdle(a_attacker->GetActorRuntimeData().currentProcess, a_attacker, GetActionObject(), IdleAnimation, true, true, a_target);
+			
+			if (result)
+			{
+				
+			}else{
+
+			}
+				
+			return result;
+		}
+
+		return false;
+	}
+
 	bool AttackActionHook::PerformAttackAction(RE::TESActionData *a_actionData)
 	{
 		auto attacker = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
