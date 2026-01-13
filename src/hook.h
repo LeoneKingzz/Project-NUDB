@@ -155,7 +155,7 @@ namespace hooks
 			Install_Update();
 		}
 
-		// void init();
+		void init();
 
 		static bool BindPapyrusFunctions(VM* vm);
 		static void Set_iFrames(RE::Actor* actor);
@@ -469,7 +469,8 @@ namespace hooks
 
 			return result;
 		}
-		
+
+		PRECISION_API::IVPrecision1 *_precision_API = nullptr;
 
 	private:
 		OnMeleeHitHook() = default;
@@ -481,7 +482,6 @@ namespace hooks
 		OnMeleeHitHook& operator=(OnMeleeHitHook&&) = delete;
 
 		std::random_device rd;
-		//PRECISION_API::IVPrecision1* _precision_API;
 		//static void PrecisionWeaponsCallback_Post(const PRECISION_API::PrecisionHitData& a_precisionHitData, const RE::HitData& a_hitdata);
 		std::unordered_map<RE::Actor*, std::vector<RE::TESBoundObject*>> _Inventory;
 		std::unordered_map<RE::Actor *, std::vector<RE::Projectile *>> _RunesCast;

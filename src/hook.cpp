@@ -1400,6 +1400,58 @@ namespace hooks
 		return localDistance <= max_distance && localDistance >= min_distance && withInAngle;
 	}
 
+	const bool SCAR::SCARActionData::IsLeftAttack() const
+	{
+		return _strcmpi(actionType.c_str(), "LA") == 0 || _strcmpi(actionType.c_str(), "LPA") == 0;
+	}
+
+	const bool SCAR::SCARActionData::IsBashAttack() const
+	{
+		return _strcmpi(actionType.c_str(), "BA") == 0 || _strcmpi(actionType.c_str(), "BPA") == 0;
+	}
+
+	float SCAR::SCARActionData::GetWeaponReach(RE::Actor *a_attacker) const
+	{
+		if (a_attacker)
+		{
+			if (weaponLength.has_value())
+			{
+				return weaponLength.value() * a_attacker->GetScale();
+			}
+
+			if (IsBashAttack())
+			{
+				auto setting = RE::GameSettingCollection::GetSingleton()->GetSetting("fCombatBashReach");
+				if (setting)
+					return setting->GetFloat() * a_attacker->GetScale();
+			}
+			else
+			{
+				const bool leftAttack = IsLeftAttack();
+				auto dataHandler = OnMeleeHitHook::GetSingleton();
+				if (dataHandler && dataHandler->_precision_API)
+				{
+					auto collisionType = leftAttack ? PRECISION_API::RequestedAttackCollisionType::LeftWeapon : PRECISION_API::RequestedAttackCollisionType::RightWeapon;
+					return (dataHandler->_precision_API->GetAttackCollisionCapsuleLength(a_attacker->GetHandle(), collisionType) + AttackRangeCheck::GetBoundRadius(a_attacker));
+				}
+				else
+				{
+					auto obj = a_attacker->GetEquippedObject(leftAttack);
+					auto weap = obj ? obj->As<RE::TESObjectWEAP>() : nullptr;
+					auto setting = RE::GameSettingCollection::GetSingleton()->GetSetting("fCombatDistance");
+					if (weap && setting)
+					{
+						return weap->GetReach() * setting->GetFloat() * a_attacker->GetScale();
+					}
+				}
+			}
+
+			return a_attacker->GetRace() ? a_attacker->GetRace()->data.unarmedReach : 0.f;
+		}
+
+		return 0.f;
+	}
+
 	const SCAR::DefaultObject SCAR::SCARActionData::GetActionObject() const
 	{
 		static std::map<const std::string, const DefaultObject> actionMap = {
@@ -1520,14 +1572,14 @@ namespace hooks
 		}
 	}
 
-	// void OnMeleeHitHook::init()
-	// {
-	// 	_precision_API = reinterpret_cast<PRECISION_API::IVPrecision1*>(PRECISION_API::RequestPluginAPI());
-	// 	if (_precision_API) {
-	// 		_precision_API->AddPostHitCallback(SKSE::GetPluginHandle(), PrecisionWeaponsCallback_Post);
-	// 		logger::info("Enabled compatibility with Precision");
-	// 	}
-	// }
+	void OnMeleeHitHook::init()
+	{
+		_precision_API = reinterpret_cast<PRECISION_API::IVPrecision1*>(PRECISION_API::RequestPluginAPI());
+		if (_precision_API) {
+			// _precision_API->AddPostHitCallback(SKSE::GetPluginHandle(), PrecisionWeaponsCallback_Post);
+			logger::info("Enabled compatibility with Precision");
+		}
+	}
 
 	// void OnMeleeHitHook::PrecisionWeaponsCallback_Post(const PRECISION_API::PrecisionHitData& a_precisionHitData, const RE::HitData& a_hitdata)
 	// {
