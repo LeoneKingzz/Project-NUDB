@@ -1507,9 +1507,9 @@ namespace hooks
 		}
 	}
 
-	bool AttackRangeCheck::CheckPathing(RE::Actor *a_attacker, RE::Actor *a_target)
+	bool AttackRangeCheck::CheckPathing(RE::Actor *enemy, RE::Actor *protagonist)
 	{
-		if (!a_attacker || !a_target || !a_attacker->Get3D() || !a_target->Get3D() || !a_target->GetActorRuntimeData().currentProcess || !a_attacker->GetActorRuntimeData().currentProcess)
+		if (!enemy || !protagonist || !enemy->Get3D() || !protagonist->Get3D() || !protagonist->GetActorRuntimeData().currentProcess || !enemy->GetActorRuntimeData().currentProcess)
 			return false;
 
 		auto GetMeleeWeaponRange = [](RE::Actor *a_actor) -> float
@@ -1537,32 +1537,32 @@ namespace hooks
 			return result;
 		};
 
-		auto attackerPos = a_attacker->Get3D()->world.translate;
-		auto targPos = a_target->Is3rdPersonVisible() ? a_target->Get3D()->world.translate : a_target->GetPosition();
-		auto matrix = a_attacker->Get3D()->world.rotate;
+		auto enemyPos = enemy->Get3D()->world.translate;
+		auto protagonistPos = protagonist->Is3rdPersonVisible() ? protagonist->Get3D()->world.translate : protagonist->GetPosition();
+		auto matrix = enemy->Get3D()->world.rotate;
 
 		RE::NiMatrix3 invMatrix = matrix.Transpose();
 
-		auto localVector = invMatrix * (targPos - attackerPos);
+		auto localVector = invMatrix * (protagonistPos - enemyPos);
 		auto localDistance = std::sqrtf(localVector.x * localVector.x + localVector.y * localVector.y);
-		if (localDistance <= GetMeleeWeaponRange(a_attacker) + GetBoundRadius(a_target))
+		if (localDistance <= GetMeleeWeaponRange(enemy) + GetBoundRadius(protagonist))
 			return true;
 
-		return CanNavigateToPosition(a_attacker, a_attacker->GetPosition(), a_target->GetPosition(), 2.0f, GetBoundRadius(a_attacker));
+		return CanNavigateToPosition(enemy, enemy->GetPosition(), protagonist->GetPosition(), 2.0f, GetBoundRadius(enemy));
 	}
 
-	bool AttackRangeCheck::WithinAttackRange(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle)
+	bool AttackRangeCheck::WithinAttackRange(RE::Actor *enemy, RE::Actor *protagonist, float max_distance, float min_distance, float a_startAngle, float a_endAngle)
 	{
-		if (!a_attacker || !a_targ || !a_attacker->Get3D() || !a_targ->Get3D())
+		if (!enemy || !protagonist || !enemy->Get3D() || !protagonist->Get3D())
 			return false;
 
-		max_distance += GetBoundRadius(a_targ);
+		max_distance += GetBoundRadius(protagonist);
 		if (min_distance > 0.f)
-			min_distance += GetBoundRadius(a_targ) + GetBoundRadius(a_attacker);
+			min_distance += GetBoundRadius(protagonist) + GetBoundRadius(enemy);
 
-		auto attackerPos = a_attacker->Get3D()->world.translate;
-		auto targPos = a_targ->Is3rdPersonVisible() ? a_targ->Get3D()->world.translate : a_targ->GetPosition();
-		auto matrix = a_attacker->Get3D()->world.rotate;
+		auto enemyPos = enemy->Get3D()->world.translate;
+		auto protagonistPos = protagonist->Is3rdPersonVisible() ? protagonist->Get3D()->world.translate : protagonist->GetPosition();
+		auto matrix = enemy->Get3D()->world.rotate;
 
 		RE::NiMatrix3 invMatrix = matrix.Transpose();
 
@@ -1588,19 +1588,19 @@ namespace hooks
 			return false;
 		};
 
-		float attackerBottomHeight, attackerTopHeight, targBottomHeight, targTopHeight;
-		if (!GetAabbTopBottomHeight(a_attacker, attackerTopHeight, attackerBottomHeight) || !GetAabbTopBottomHeight(a_targ, targTopHeight, targBottomHeight))
+		float enemyBottomHeight, enemyTopHeight, protagonistBottomHeight, protagonistTopHeight;
+		if (!GetAabbTopBottomHeight(enemy, enemyTopHeight, enemyBottomHeight) || !GetAabbTopBottomHeight(protagonist, protagonistTopHeight, protagonistBottomHeight))
 			return false;
 
-		auto CheckHeight = [](const float attackerBottomHeight, const float attackerTopHeight, const float targBottomHeight, const float targTopHeight) -> bool
+		auto CheckHeight = [](const float enemyBottomHeight, const float enemyTopHeight, const float protagonistBottomHeight, const float protagonistTopHeight) -> bool
 		{
-			return (attackerTopHeight >= targTopHeight && attackerBottomHeight <= targTopHeight) || (attackerTopHeight >= targBottomHeight && attackerBottomHeight <= targBottomHeight) || (attackerTopHeight <= targTopHeight && attackerBottomHeight >= targBottomHeight);
+			return (enemyTopHeight >= protagonistTopHeight && enemyBottomHeight <= protagonistTopHeight) || (enemyTopHeight >= protagonistBottomHeight && enemyBottomHeight <= protagonistBottomHeight) || (enemyTopHeight <= protagonistTopHeight && enemyBottomHeight >= protagonistBottomHeight);
 		};
 
-		if (!CheckHeight(attackerBottomHeight, attackerTopHeight, targBottomHeight, targTopHeight))
+		if (!CheckHeight(enemyBottomHeight, enemyTopHeight, protagonistBottomHeight, protagonistTopHeight))
 			return false;
 
-		auto localVector = invMatrix * (targPos - attackerPos);
+		auto localVector = invMatrix * (protagonistPos - enemyPos);
 
 		auto localDistance = std::sqrtf(localVector.x * localVector.x + localVector.y * localVector.y);
 		auto localAngle = std::atan2f(localVector.x, localVector.y);
@@ -1631,13 +1631,13 @@ namespace hooks
 		return itr != actionMap.end() ? itr->second : DefaultObject::kActionRightAttack;
 	}
 
-	bool SCAR::PerformSCARAction(RE::Actor *a_attacker, RE::Actor *a_target)
+	bool SCAR::PerformSCARAction(RE::Actor *protagonist, RE::Actor *enemy)
 	{
-		if (!a_attacker || !a_target || !a_attacker->GetActorRuntimeData().currentProcess)
+		if (!protagonist || !enemy || !protagonist->GetActorRuntimeData().currentProcess)
 			return false;
 
-		const float weaponReach = Actor_GetReach(a_attacker);
-		// if (AttackRangeCheck::WithinAttackRange(a_attacker, a_target, 150.0f + weaponReach, 0.0f, GetStartAngle(), GetEndAngle()))
+		const float weaponReach = Actor_GetReach(enemy);
+		// if (AttackRangeCheck::WithinAttackRange(enemy, protagonist, 150.0f + weaponReach, 0.0f, GetStartAngle(), GetEndAngle()))
 		// {
 		// 	auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("IdleAnimationEditorID");
 		// 	if (!IdleAnimation)
@@ -1648,7 +1648,7 @@ namespace hooks
 
 		// 	// DefaultObject;
 
-		// 	auto result = PlayIdle(a_attacker->GetActorRuntimeData().currentProcess, a_attacker, GetActionObject(), IdleAnimation, true, true, a_target);
+		// 	auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, GetActionObject(), IdleAnimation, true, true, enemy);
 			
 		// 	if (result)
 		// 	{

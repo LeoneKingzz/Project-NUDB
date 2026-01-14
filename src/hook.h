@@ -733,11 +733,11 @@ namespace hooks
 			return func(a_actor);
 		};
 
-		static bool CheckPathing(RE::Actor *a_attacker, RE::Actor *a_target);
+		static bool CheckPathing(RE::Actor *enemy, RE::Actor *protagonist);
 
-		static bool WithinAttackRange(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
+		static bool WithinAttackRange(RE::Actor *enemy, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
 
-		static void DrawOverlay(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
+		static void DrawOverlay(RE::Actor *enemy, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
 	};
 
 	class SCAR
@@ -751,7 +751,7 @@ namespace hooks
 			return &avInterface;
 		}
 
-		bool PerformSCARAction(RE::Actor *a_attacker, RE::Actor *a_target);
+		bool PerformSCARAction(RE::Actor *protagonist, RE::Actor *enemy);
 
 		static bool PlayIdle(RE::AIProcess *a_this, RE::Actor *a_actor, RE::DEFAULT_OBJECT a_action, RE::TESIdleForm *a_idle, bool a_arg5, bool a_arg6, RE::TESObjectREFR *a_target)
 		{
