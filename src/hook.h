@@ -172,7 +172,8 @@ namespace hooks
 		static bool IsCasting(RE::Actor *a_actor);
 		static void UpdateCombatTarget(RE::Actor* a_actor);
 		static bool isHumanoid(RE::Actor *a_actor);
-		static std::vector<RE::TESForm*> GetEquippedForm(RE::Actor* actor);
+		static std::vector<RE::TESForm *> GetEquippedForm(RE::Actor *actor, bool right = false, bool left = false);
+		static int GetEquippedItemType(RE::Actor *actor, bool lefthand);
 		static bool IsWeaponOut(RE::Actor* actor);
 		void Update(RE::Actor* a_actor, float a_delta);
 		float AV_Mod(RE::Actor *a_actor, int a_aggression, float input, float mod);
@@ -736,60 +737,80 @@ namespace hooks
 		static void DrawOverlay(RE::Actor *a_attacker, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
 	};
 
-	namespace SCAR
+	class SCAR
 	{
-		// using json = nlohmann::json;
-
+	public:
 		using DefaultObject = RE::BGSDefaultObjectManager::DefaultObject;
 
-		struct SCARActionData
+		static SCAR *GetSingleton()
 		{
-		private:
-			float weight = 0.f;
+			static SCAR avInterface;
+			return &avInterface;
+		}
 
-			std::string IdleAnimationEditorID = "";
+		bool PerformSCARAction(RE::Actor *a_attacker, RE::Actor *a_target);
 
-			float minDistance = 0.f;
-
-			float maxDistance = 150.f;
-
-			float startAngle = -60.f;
-
-			float endAngle = 60.f;
-
-			float chance = 100.f;
-
-			std::string actionType = "RA";
-
-			std::optional<float> weaponLength;
-
-		public:
-			// friend void from_json(const json &j, SCARActionData &a_data);
-			friend class DataHandler;
-
-			bool PerformSCARAction(RE::Actor *a_attacker, RE::Actor *a_target);
-
-			static bool SortByWeight(SCARActionData a_data1, SCARActionData a_data2);
-
-			static bool PlayIdle(RE::AIProcess *a_this, RE::Actor *a_actor, RE::DEFAULT_OBJECT a_action, RE::TESIdleForm *a_idle, bool a_arg5, bool a_arg6, RE::TESObjectREFR *a_target)
-			{
-				using func_t = decltype(&PlayIdle);
-				REL::Relocation<func_t> func{RELOCATION_ID(38290, 39256)};
-				return func(a_this, a_actor, a_action, a_idle, a_arg5, a_arg6, a_target);
-			};
-
-		private:
-			const DefaultObject GetActionObject() const;
-			_NODISCARD const float GetStartAngle() const { return startAngle / 180.f * std::numbers::pi; };
-			_NODISCARD const float GetEndAngle() const { return endAngle / 180.f * std::numbers::pi; };
-
-			_NODISCARD const bool IsLeftAttack() const;
-			_NODISCARD const bool IsBashAttack() const;
-			_NODISCARD float GetWeaponReach(RE::Actor *a_attacker) const;
+		static bool PlayIdle(RE::AIProcess *a_this, RE::Actor *a_actor, RE::DEFAULT_OBJECT a_action, RE::TESIdleForm *a_idle, bool a_arg5, bool a_arg6, RE::TESObjectREFR *a_target)
+		{
+			using func_t = decltype(&PlayIdle);
+			REL::Relocation<func_t> func{RELOCATION_ID(38290, 39256)};
+			return func(a_this, a_actor, a_action, a_idle, a_arg5, a_arg6, a_target);
 		};
 
-		// void from_json(const json &j, SCARActionData &a_data);
-	}
+		DefaultObject GetActionObject(std::string actionType);
+
+		float get_block_chance(RE::Actor* protagonist);
+
+		struct BlockChance_factors
+		{
+			float Block_Weighting = 0.5f;
+			float Defensive_Weighting = 0.5f;
+
+		} block_chance;
+
+		// struct SCARActionData
+		// {
+		// private:
+		// 	float weight = 0.f;
+
+		// 	std::string IdleAnimationEditorID = "";
+
+		// 	float minDistance = 0.f;
+
+		// 	float maxDistance = 150.f;
+
+		// 	float startAngle = -60.f;
+
+		// 	float endAngle = 60.f;
+
+		// 	float chance = 100.f;
+
+		// 	std::string actionType = "RA";
+
+		// 	std::optional<float> weaponLength;
+
+		// public:
+
+		// private:
+		// 	const DefaultObject GetActionObject() const;
+		// 	_NODISCARD const float GetStartAngle() const { return startAngle / 180.f * std::numbers::pi; };
+		// 	_NODISCARD const float GetEndAngle() const { return endAngle / 180.f * std::numbers::pi; };
+
+		// 	_NODISCARD const bool IsLeftAttack() const;
+		// 	_NODISCARD const bool IsBashAttack() const;
+		// 	_NODISCARD float GetWeaponReach(RE::Actor *a_attacker) const;
+		// };
+
+	private:
+
+		SCAR() = default;
+		SCAR(const SCAR &) = delete;
+		SCAR(SCAR &&) = delete;
+		~SCAR() = default;
+
+		SCAR &operator=(const SCAR &) = delete;
+		SCAR &operator=(SCAR &&) = delete;
+	};
 };
 
 constexpr uint32_t hash(const char* data, size_t const size) noexcept

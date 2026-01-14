@@ -221,20 +221,145 @@ namespace hooks
 		a_actor->NotifyAnimationGraph("staggerStop");
 	}
 
-	std::vector<RE::TESForm*> OnMeleeHitHook::GetEquippedForm(RE::Actor* actor)
+	std::vector<RE::TESForm *> OnMeleeHitHook::GetEquippedForm(RE::Actor *actor, bool right, bool left)
 	{
-		std::vector<RE::TESForm*> Hen;
+		std::vector<RE::TESForm *> Hen;
 
 		auto limboform = actor->GetActorRuntimeData().currentProcess;
 
-		if (limboform && limboform->GetEquippedLeftHand()) {
-			Hen.push_back(limboform->GetEquippedLeftHand());
+		if (right)
+		{
+			if (limboform && limboform->GetEquippedRightHand())
+			{
+				Hen.push_back(limboform->GetEquippedRightHand());
+			}
 		}
-		if (limboform && limboform->GetEquippedRightHand()) {
-			Hen.push_back(limboform->GetEquippedRightHand());
+		else if (left)
+		{
+			if (limboform && limboform->GetEquippedLeftHand())
+			{
+				Hen.push_back(limboform->GetEquippedLeftHand());
+			}
+		}
+		else
+		{
+			if (limboform && limboform->GetEquippedLeftHand())
+			{
+				Hen.push_back(limboform->GetEquippedLeftHand());
+			}
+			if (limboform && limboform->GetEquippedRightHand())
+			{
+				Hen.push_back(limboform->GetEquippedRightHand());
+			}
+		}
+		return Hen;
+	}
+
+	int OnMeleeHitHook::GetEquippedItemType(RE::Actor *actor, bool lefthand)
+	{
+		using TYPE = RE::CombatInventoryItem::TYPE;
+		int result = -1;
+		auto form_list = lefthand ? GetEquippedForm(actor, false, true) : GetEquippedForm(actor, true);
+
+		if (!form_list.empty())
+		{
+			for (auto form : form_list)
+			{
+				if (form)
+				{
+					switch (*form->formType)
+					{
+					case RE::FormType::Weapon:
+						if (const auto equippedWeapon = form->As<RE::TESObjectWEAP>())
+						{
+							switch (equippedWeapon->GetWeaponType())
+							{
+							case RE::WEAPON_TYPE::kHandToHandMelee:
+								result = 0;
+								break;
+							case RE::WEAPON_TYPE::kOneHandSword:
+								result = 1;
+								break;
+							case RE::WEAPON_TYPE::kOneHandDagger:
+								result = 2;
+								break;
+							case RE::WEAPON_TYPE::kOneHandAxe:
+								result = 3;
+								break;
+							case RE::WEAPON_TYPE::kOneHandMace:
+								result = 4;
+								break;
+							case RE::WEAPON_TYPE::kTwoHandSword:
+								result = 5;
+								break;
+							case RE::WEAPON_TYPE::kTwoHandAxe:
+								result = 6;
+								break;
+							case RE::WEAPON_TYPE::kBow:
+								result = 7;
+								break;
+							case RE::WEAPON_TYPE::kStaff:
+								result = 8;
+								break;
+							case RE::WEAPON_TYPE::kCrossbow:
+								result = 12;
+								break;
+							default:
+								break;
+							}
+						}
+						break;
+
+					default:
+						break;
+					}
+					if (result != -1)
+					{
+						break;
+					}
+				}
+				continue;
+			}
 		}
 
-		return Hen;
+		if (result == -1)
+		{
+			auto combatCtrl = actor->GetActorRuntimeData().combatController;
+			auto CombatInv = combatCtrl ? combatCtrl->inventory : nullptr;
+			if (CombatInv)
+			{
+				for (const auto item : CombatInv->equippedItems)
+				{
+					if (item.item)
+					{
+						switch (item.item->GetType())
+						{
+						case TYPE::kTorch:
+							result = 11;
+							break;
+
+						case TYPE::kShield:
+							result = 10;
+							break;
+
+						case TYPE::kScroll:
+						case TYPE::kMagic:
+							result = 9;
+							break;
+
+						default:
+							break;
+						}
+					}
+					if (result != -1)
+					{
+						break;
+					}
+				}
+			}
+		}
+
+		return result;
 	}
 
 	bool OnMeleeHitHook::IsWeaponOut(RE::Actor *actor)
@@ -1400,59 +1525,7 @@ namespace hooks
 		return localDistance <= max_distance && localDistance >= min_distance && withInAngle;
 	}
 
-	const bool SCAR::SCARActionData::IsLeftAttack() const
-	{
-		return _strcmpi(actionType.c_str(), "LA") == 0 || _strcmpi(actionType.c_str(), "LPA") == 0;
-	}
-
-	const bool SCAR::SCARActionData::IsBashAttack() const
-	{
-		return _strcmpi(actionType.c_str(), "BA") == 0 || _strcmpi(actionType.c_str(), "BPA") == 0;
-	}
-
-	float SCAR::SCARActionData::GetWeaponReach(RE::Actor *a_attacker) const
-	{
-		if (a_attacker)
-		{
-			if (weaponLength.has_value())
-			{
-				return weaponLength.value() * a_attacker->GetScale();
-			}
-
-			if (IsBashAttack())
-			{
-				auto setting = RE::GameSettingCollection::GetSingleton()->GetSetting("fCombatBashReach");
-				if (setting)
-					return setting->GetFloat() * a_attacker->GetScale();
-			}
-			else
-			{
-				const bool leftAttack = IsLeftAttack();
-				auto dataHandler = OnMeleeHitHook::GetSingleton();
-				if (dataHandler && dataHandler->_precision_API)
-				{
-					auto collisionType = leftAttack ? PRECISION_API::RequestedAttackCollisionType::LeftWeapon : PRECISION_API::RequestedAttackCollisionType::RightWeapon;
-					return (dataHandler->_precision_API->GetAttackCollisionCapsuleLength(a_attacker->GetHandle(), collisionType) + AttackRangeCheck::GetBoundRadius(a_attacker));
-				}
-				else
-				{
-					auto obj = a_attacker->GetEquippedObject(leftAttack);
-					auto weap = obj ? obj->As<RE::TESObjectWEAP>() : nullptr;
-					auto setting = RE::GameSettingCollection::GetSingleton()->GetSetting("fCombatDistance");
-					if (weap && setting)
-					{
-						return weap->GetReach() * setting->GetFloat() * a_attacker->GetScale();
-					}
-				}
-			}
-
-			return a_attacker->GetRace() ? a_attacker->GetRace()->data.unarmedReach : 0.f;
-		}
-
-		return 0.f;
-	}
-
-	const SCAR::DefaultObject SCAR::SCARActionData::GetActionObject() const
+	SCAR::DefaultObject SCAR::GetActionObject(std::string actionType)
 	{
 		static std::map<const std::string, const DefaultObject> actionMap = {
 			{"RA", DefaultObject::kActionRightAttack},
@@ -1469,45 +1542,90 @@ namespace hooks
 		return itr != actionMap.end() ? itr->second : DefaultObject::kActionRightAttack;
 	}
 
-	bool SCAR::SCARActionData::PerformSCARAction(RE::Actor *a_attacker, RE::Actor *a_target)
+	bool SCAR::PerformSCARAction(RE::Actor *a_attacker, RE::Actor *a_target)
 	{
 		if (!a_attacker || !a_target || !a_attacker->GetActorRuntimeData().currentProcess)
 			return false;
 
-		const float weaponReach = GetWeaponReach(a_attacker);
-		if (AttackRangeCheck::WithinAttackRange(a_attacker, a_target, maxDistance + weaponReach, minDistance, GetStartAngle(), GetEndAngle()))
-		{
-			auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>(IdleAnimationEditorID);
-			if (!IdleAnimation)
-			{
-				// ERROR("Not Vaild Idle Animation Form Get: \"{}\"!", IdleAnimationEditorID);
-				return false;
-			}
+		const float weaponReach = Actor_GetReach(a_attacker);
+		// if (AttackRangeCheck::WithinAttackRange(a_attacker, a_target, 150.0f + weaponReach, 0.0f, GetStartAngle(), GetEndAngle()))
+		// {
+		// 	auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("IdleAnimationEditorID");
+		// 	if (!IdleAnimation)
+		// 	{
+		// 		// ERROR("Not Vaild Idle Animation Form Get: \"{}\"!", IdleAnimationEditorID);
+		// 		return false;
+		// 	}
 
-			auto result = PlayIdle(a_attacker->GetActorRuntimeData().currentProcess, a_attacker, GetActionObject(), IdleAnimation, true, true, a_target);
+		// 	// DefaultObject;
+
+		// 	auto result = PlayIdle(a_attacker->GetActorRuntimeData().currentProcess, a_attacker, GetActionObject(), IdleAnimation, true, true, a_target);
 			
-			if (result)
-			{
+		// 	if (result)
+		// 	{
 				
-			}else{
+		// 	}else{
 
-			}
+		// 	}
 				
-			return result;
-		}
+		// 	return result;
+		// }
 
 		return false;
 	}
 
+	float SCAR::get_block_chance(RE::Actor *protagonist){
+		float Score = 0.0f;
+
+		/////////////////////////////////////////////////Defensive & Skirmish Weighting ///////////////////////////////////////////////////////////////////////////////////////////
+
+		if (protagonist->GetActorRuntimeData().combatController)
+		{
+			RE::TESCombatStyle *style = protagonist->GetActorRuntimeData().combatController->combatStyle;
+			if (style)
+			{
+				Score += style->generalData.defensiveMult * block_chance.Defensive_Weighting;
+			}
+		}
+
+		/////////////////////////////////////////////////Sneak Skill Weighting /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		Score += (protagonist->AsActorValueOwner()->GetActorValue(RE::ActorValue::kBlock) / 100.0f) * block_chance.Block_Weighting;
+
+		return Score;
+	}
+
 	bool AttackActionHook::PerformAttackAction(RE::TESActionData *a_actionData)
 	{
-		auto attacker = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
-		auto targ = attacker ? attacker->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
+		auto protagonist = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
+		auto enemy = protagonist ? protagonist->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
 
-		if (targ && attacker->GetActorRuntimeData().currentProcess && !attacker->IsPlayerRef() && GetLOS(attacker, targ.get()) && AttackRangeCheck::CheckPathing(attacker, targ.get()))
+		// a_actionData.;
+
+		// refr->HasKeywordString("ActorTypeNPC")
+		// IsHumanoid
+		// NUB_H2H_Block_NPC
+		// NUB_DW_Block_NPC
+
+		RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
+		auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
+
+		float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
+
+		if (abs(angle) > attackAngle)
+		{
+			// continue;
+		}
+
+		if (OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) <= SCAR::GetSingleton()->get_block_chance(protagonist))
+		{
+			
+		}
+
+		if (enemy && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() && GetLOS(protagonist, enemy.get()) && AttackRangeCheck::CheckPathing(protagonist, enemy.get()))
 		{
 
-			// SCAR::SCARActionData::PerformSCARAction(attacker, targ.get());
+			// SCAR::SCARActionData::PerformSCARAction(protagonist, enemy.get());
 		}
 
 		return _PerformAttackAction(a_actionData);
