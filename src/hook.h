@@ -174,6 +174,9 @@ namespace hooks
 		static bool isHumanoid(RE::Actor *a_actor);
 		static std::vector<RE::TESForm *> GetEquippedForm(RE::Actor *actor, bool right = false, bool left = false);
 		static int GetEquippedItemType(RE::Actor *actor, bool lefthand);
+		static bool IsRangedCombatant(RE::Actor *actor);
+		static bool IsHandToHandMelee(RE::Actor *actor);
+		static bool IsDualWieldMelee(RE::Actor *actor);
 		static bool IsWeaponOut(RE::Actor* actor);
 		void Update(RE::Actor* a_actor, float a_delta);
 		float AV_Mod(RE::Actor *a_actor, int a_aggression, float input, float mod);

@@ -362,6 +362,95 @@ namespace hooks
 		return result;
 	}
 
+	bool OnMeleeHitHook::IsRangedCombatant(RE::Actor *actor)
+	{
+
+		bool result = false;
+
+		switch (GetEquippedItemType(actor, false))
+		{
+		case 7:
+		case 8:
+		case 9:
+		case 12:
+			result = true;
+			break;
+
+		default:
+
+			break;
+		}
+
+		return result;
+	}
+
+	bool OnMeleeHitHook::IsHandToHandMelee(RE::Actor *actor)
+	{
+		bool left = false;
+		bool right = false;
+
+		switch (GetEquippedItemType(actor, false))
+		{
+		case 0:
+			right = true;
+			break;
+
+		default:
+
+			break;
+		}
+
+		switch (GetEquippedItemType(actor, true))
+		{
+		case 0:
+			left = true;
+			break;
+
+		default:
+
+			break;
+		}
+
+		return left && right;
+	}
+
+	bool OnMeleeHitHook::IsDualWieldMelee(RE::Actor *actor)
+	{
+
+		bool left = false;
+		bool right = false;
+
+		switch (GetEquippedItemType(actor, false))
+		{
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+			right = true;
+			break;
+
+		default:
+
+			break;
+		}
+
+		switch (GetEquippedItemType(actor, true))
+		{
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+			left = true;
+			break;
+
+		default:
+
+			break;
+		}
+
+		return left && right;
+	}
+
 	bool OnMeleeHitHook::IsWeaponOut(RE::Actor *actor)
 	{
 		bool result = false;
