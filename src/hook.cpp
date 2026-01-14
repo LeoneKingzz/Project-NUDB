@@ -1689,6 +1689,12 @@ namespace hooks
 		auto protagonist = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
 		auto enemy = protagonist ? protagonist->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
 
+		if (enemy && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() && GetLOS(protagonist, enemy.get()) && AttackRangeCheck::CheckPathing(enemy.get(), protagonist))
+		{
+
+			SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get());
+		}
+
 		// a_actionData.;
 
 		// refr->HasKeywordString("ActorTypeNPC")
@@ -1709,12 +1715,6 @@ namespace hooks
 		if (OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) <= SCAR::GetSingleton()->get_block_chance(protagonist))
 		{
 			
-		}
-
-		if (enemy && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() && GetLOS(protagonist, enemy.get()) && AttackRangeCheck::CheckPathing(protagonist, enemy.get()))
-		{
-
-			// SCAR::SCARActionData::PerformSCARAction(protagonist, enemy.get());
 		}
 
 		return _PerformAttackAction(a_actionData);
