@@ -1503,23 +1503,12 @@ namespace hooks
 	{
 		auto attacker = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
 		auto targ = attacker ? attacker->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
-		// auto scarClip = attacker ? DataHandler::GetSCARDataClip(attacker) : nullptr;
-		// if (scarClip)
-		// {
-		// 	if (targ && attacker->GetActorRuntimeData().currentProcess && !attacker->IsPlayerRef() && attacker->RequestLOS(targ.get()) && AttackRangeCheck::CheckPathing(attacker, targ.get()))
-		// 	{
-		// 		DEBUG("Find SCAR Action Data in clip \"{}\" of \"{}\"", scarClip->animationName.c_str(), attacker->GetName());
-		// 		auto dataArr = DataHandler::GetSCARActionData(scarClip);
-		// 		std::sort(dataArr.begin(), dataArr.end(), SCARActionData::SortByWeight);
-		// 		for (auto data : dataArr)
-		// 		{
-		// 			if (data.PerformSCARAction(attacker, targ.get()))
-		// 				return true;
-		// 		}
-		// 	}
 
-		// 	return false;
-		// }
+		if (targ && attacker->GetActorRuntimeData().currentProcess && !attacker->IsPlayerRef() && GetLOS(attacker, targ.get()) && AttackRangeCheck::CheckPathing(attacker, targ.get()))
+		{
+
+			// SCAR::SCARActionData::PerformSCARAction(attacker, targ.get());
+		}
 
 		return _PerformAttackAction(a_actionData);
 	}

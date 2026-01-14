@@ -700,6 +700,12 @@ namespace hooks
 			// INFO("Hook PerformAttackAction!");
 		};
 
+		static bool GetLOS(RE::Actor *a_actor, RE::Actor *a_target)
+		{
+			auto result = false;
+			return a_actor->HasLineOfSight(a_target, result) && result;
+		};
+
 	private:
 		static bool PerformAttackAction(RE::TESActionData *a_actionData);
 
