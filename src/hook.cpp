@@ -1813,7 +1813,7 @@ namespace hooks
 				return false;
 			}
 
-			protagonist->SetGraphVariableInt("iWantBlock", 0);
+			protagonist->SetGraphVariableInt("iWantBlock", 1);
 
 			// auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, true, false, enemy);
 
