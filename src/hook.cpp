@@ -1850,10 +1850,11 @@ namespace hooks
 
 			if (abs(angle) < attackAngle)
 			{
-				logger::info("hook active");
+				// logger::info("hook active");
 
 				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
 				{
+					logger::info("hook active");
 					// if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get()) 
 					// && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
 					// {
