@@ -1689,33 +1689,42 @@ namespace hooks
 		auto protagonist = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
 		auto enemy = protagonist ? protagonist->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
 
-		if (enemy && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() && GetLOS(protagonist, enemy.get()) && AttackRangeCheck::CheckPathing(enemy.get(), protagonist))
+		if (enemy && enemy.get() && GetLOS(protagonist, enemy.get()) && (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
+		&& OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) <= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess 
+		&& !protagonist->IsPlayerRef() && !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
 		{
+			RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
+			auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
 
-			SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get());
+			float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
+
+			if (abs(angle) < attackAngle && AttackRangeCheck::CheckPathing(enemy.get(), protagonist))
+			{
+				
+			}
+
+			if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
+			{
+				if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") 
+				&& OnMeleeHitHook::isHumanoid(enemy.get()) && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
+				{
+					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
+					{
+						return true;
+					}
+				}
+			}
+			else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
+			{
+				if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
+				{
+					return true;
+				}
+			}
 		}
 
-		// a_actionData.;
-
-		// refr->HasKeywordString("ActorTypeNPC")
-		// IsHumanoid
 		// NUB_H2H_Block_NPC
 		// NUB_DW_Block_NPC
-
-		RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
-		auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
-
-		float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
-
-		if (abs(angle) > attackAngle)
-		{
-			// continue;
-		}
-
-		if (OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) <= SCAR::GetSingleton()->get_block_chance(protagonist))
-		{
-			
-		}
 
 		return _PerformAttackAction(a_actionData);
 	}
