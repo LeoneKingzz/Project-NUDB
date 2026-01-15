@@ -1946,6 +1946,7 @@ namespace hooks
 									{
 										a_actor->SetGraphVariableBool("bNUB_IsBlocking", false);
 										// a_actor->NotifyAnimationGraph("blockStop");
+										logger::info("{} successfully stopped blocking", a_actor->GetName());
 									}
 								}
 							}
