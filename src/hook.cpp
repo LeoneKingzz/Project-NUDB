@@ -1814,13 +1814,13 @@ namespace hooks
 
 			auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, true, false, enemy);
 
-			// if (result)
-			// {
-			// 	logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
-			// }else{
+			if (result)
+			{
+				logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
+			}else{
 
-			// 	logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
-			// }
+				logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
+			}
 				
 			return result;
 		}
