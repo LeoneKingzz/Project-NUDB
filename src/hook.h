@@ -179,6 +179,12 @@ namespace hooks
 		static bool IsRangedCombatant(RE::Actor *actor);
 		static bool IsHandToHandMelee(RE::Actor *actor);
 		static bool IsDualWieldMelee(RE::Actor *actor);
+		void AssessBlockSituation(RE::Actor *protagonist, RE::Actor *enemy);
+		static bool GetLOS(RE::Actor *a_actor, RE::Actor *a_target)
+		{
+			auto result = false;
+			return a_actor->HasLineOfSight(a_target, result) && result;
+		};
 		static bool IsWeaponOut(RE::Actor* actor);
 		void Update(RE::Actor* a_actor, float a_delta);
 		float AV_Mod(RE::Actor *a_actor, int a_aggression, float input, float mod);
@@ -706,12 +712,6 @@ namespace hooks
 			// INFO("Hook PerformAttackAction!");
 		};
 
-		static bool GetLOS(RE::Actor *a_actor, RE::Actor *a_target)
-		{
-			auto result = false;
-			return a_actor->HasLineOfSight(a_target, result) && result;
-		};
-
 	private:
 		static bool PerformAttackAction(RE::TESActionData *a_actionData);
 
@@ -753,7 +753,7 @@ namespace hooks
 			return &avInterface;
 		}
 
-		bool PerformSCARAction(RE::Actor *protagonist, RE::Actor *enemy, bool unarmed = false);
+		void PerformBlockAction(RE::Actor *protagonist, RE::Actor *enemy, bool unarmed = false);
 
 		static bool PlayIdle(RE::AIProcess *a_this, RE::Actor *a_actor, RE::DEFAULT_OBJECT a_action, RE::TESIdleForm *a_idle, bool a_arg5, bool a_arg6, RE::TESObjectREFR *a_target)
 		{
