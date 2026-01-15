@@ -407,12 +407,9 @@ namespace hooks
 			break;
 		}
 
-		if(!result)
+		if (!result && GetIntVariable(actor, "MCO_IsInRecovery"))
 		{
-			if (GetIntVariable(actor, "MCO_IsInRecovery"))
-			{
-				result = true;
-			}
+			result = true;
 		}
 
 		return result;
