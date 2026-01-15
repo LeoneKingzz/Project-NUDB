@@ -1940,8 +1940,14 @@ namespace hooks
 						case "Block_Update"_h:
 							if (GetBoolVariable(a_actor, "bNUB_IsBlocking") && GetBoolVariable(a_actor, "Isblocking"))
 							{
-								a_actor->SetGraphVariableBool("bNUB_IsBlocking", false);
-								a_actor->NotifyAnimationGraph("blockStop");
+								if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && a_actor->GetActorRuntimeData().currentProcess)
+								{
+									if (auto result = SCAR::PlayIdle(a_actor->GetActorRuntimeData().currentProcess, a_actor, SCAR::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
+									{
+										a_actor->SetGraphVariableBool("bNUB_IsBlocking", false);
+										// a_actor->NotifyAnimationGraph("blockStop");
+									}
+								}
 							}
 
 							break;
