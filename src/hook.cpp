@@ -1860,25 +1860,28 @@ namespace hooks
 
 	void OnMeleeHitHook::AssessBlockSituation(RE::Actor *protagonist, RE::Actor *enemy)
 	{
-		if (GetLOS(protagonist, enemy) && (enemy->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy, "IsAttacking")) 
-		&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
+		if (GetLOS(protagonist, enemy) && (enemy->IsAttacking() || GetBoolVariable(enemy, "IsAttacking")) 
+		&& GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
 		<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
-		&& !OnMeleeHitHook::IsRangedCombatant(enemy))
+		&& !IsRangedCombatant(enemy))
 		{
 
-			RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy);
-			auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy, attackdata);
+			RE::BGSAttackData *attackdata = GetSingleton()->get_attackData(enemy);
+			auto angle = GetSingleton()->get_angle_he_me(protagonist, enemy, attackdata);
 
 			float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
 
 			if (abs(angle) < attackAngle)
 			{
 
-				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
+				if (IsHandToHandMelee(protagonist))
 				{
-					SCAR::GetSingleton()->PerformBlockAction(protagonist, enemy, true);
+					if (isHumanoid(protagonist))
+					{
+						SCAR::GetSingleton()->PerformBlockAction(protagonist, enemy, true);
+					}
 				}
-				else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
+				else if (IsDualWieldMelee(protagonist))
 				{
 					SCAR::GetSingleton()->PerformBlockAction(protagonist, enemy);
 				}
