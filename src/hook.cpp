@@ -270,7 +270,7 @@ namespace hooks
 					switch (*form->formType)
 					{
 					case RE::FormType::Weapon:
-						logger::info("{}'s weapon forms are detected", actor->GetName());
+						// logger::info("{}'s weapon forms are detected", actor->GetName());
 						if (const auto equippedWeapon = form->As<RE::TESObjectWEAP>())
 						{
 							switch (equippedWeapon->GetWeaponType())
@@ -322,7 +322,7 @@ namespace hooks
 				continue;
 			}
 		}else{
-			logger::info("{}'s weapon formlist is empty", actor->GetName());
+			// logger::info("{}'s weapon formlist is empty", actor->GetName());
 		}
 
 		if (result == -1)
@@ -421,7 +421,7 @@ namespace hooks
 			break;
 		}
 
-		logger::info("Actor: {}  Left: {} Right: {}", actor->GetName(), iL, iR);
+		// logger::info("Actor: {}  Left: {} Right: {}", actor->GetName(), iL, iR);
 
 		
 		return left && right;
@@ -464,7 +464,7 @@ namespace hooks
 			break;
 		}
 
-		logger::info("Actor: {}  Left: {} Right: {}", actor->GetName(), iL, iR);
+		// logger::info("Actor: {}  Left: {} Right: {}", actor->GetName(), iL, iR);
 
 		return left && right;
 	}
@@ -1808,19 +1808,19 @@ namespace hooks
 			auto IdleAnimation = unarmed ? RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_H2H_Block_NPC") : RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_DW_Block_NPC");
 			if (!IdleAnimation)
 			{
-				logger::info("Idle not found");
+				// logger::info("Idle not found");
 				return false;
 			}
 
 			auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, true, true, enemy);
 
-			if (result)
-			{
-				logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
-			}else{
+			// if (result)
+			// {
+			// 	logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
+			// }else{
 
-				logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
-			}
+			// 	logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
+			// }
 				
 			return result;
 		}
@@ -1872,7 +1872,7 @@ namespace hooks
 
 				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
 				{
-					logger::info("H2H active");
+					// logger::info("H2H active");
 					// if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get()) 
 					// && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
 					// {
@@ -1885,7 +1885,7 @@ namespace hooks
 				}
 				else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
 				{
-					logger::info("Dualw active");
+					// logger::info("Dualw active");
 
 					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
 					{
