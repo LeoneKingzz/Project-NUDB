@@ -1809,7 +1809,7 @@ namespace hooks
 			auto IdleAnimation = unarmed ? RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_H2H_Block_NPC") : RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_DW_Block_NPC");
 			if (!IdleAnimation)
 			{
-				// logger::info("Idle not found");
+				logger::info("Idle not found");
 				return false;
 			}
 
