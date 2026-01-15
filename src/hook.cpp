@@ -1865,51 +1865,57 @@ namespace hooks
 		auto protagonist = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
 		auto enemy = protagonist ? protagonist->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
 
-		if (enemy && enemy.get() && GetLOS(protagonist, enemy.get()) && (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
-		&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
-		<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
-		&& !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
+		if (enemy && enemy.get())
 		{
 			if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
 			{
 				logger::info("{} is blocking. iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
-			}else
+			}
+			else
 			{
 				logger::info("{} is not blocking. iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
 			}
-			RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
-			auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
 
-			float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
-
-			if (abs(angle) < attackAngle)
+			if (GetLOS(protagonist, enemy.get()) && (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
+			&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
+			<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
+			&& !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
 			{
-				// logger::info("hook active");
+				logger::info("reqs passed");
 
-				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
+				RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
+				auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
+
+				float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
+
+				if (abs(angle) < attackAngle)
 				{
-					// logger::info("H2H active");
-					// if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get())
-					// && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
-					// {
+					logger::info("angle active");
 
-					// }
-					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get(), true))
+					if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
 					{
-						return true;
+						logger::info("H2H active");
+						// if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get())
+						// && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
+						// {
+
+						// }
+						if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get(), true))
+						{
+							return true;
+						}
 					}
-				}
-				else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
-				{
-					// logger::info("Dualw active");
-
-					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
+					else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
 					{
-						return true;
+						logger::info("Dualw active");
+
+						if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
+						{
+							return true;
+						}
 					}
 				}
 			}
-
 		}
 
 		// AttackRangeCheck::CheckPathing(enemy.get(), protagonist)
