@@ -1836,15 +1836,6 @@ namespace hooks
 
 	void OnMeleeHitHook::AssessBlockSituation(RE::Actor *protagonist, RE::Actor *enemy)
 	{
-		if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
-		{
-			logger::info("{} is blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
-		}
-		else
-		{
-			logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
-		}
-
 		if (GetLOS(protagonist, enemy) && (enemy->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy, "IsAttacking")) 
 		&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
 		<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
@@ -1963,6 +1954,15 @@ namespace hooks
 		// }else{
 
 		// 	logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
+		// }
+
+		// if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
+		// {
+		// 	logger::info("{} is blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+		// }
+		// else
+		// {
+		// 	logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
 		// }
 	}
 
