@@ -1796,25 +1796,7 @@ namespace hooks
 
 		if (protagonist->GetPosition().GetDistance(enemy->GetPosition()) <= it.first)
 		{
-			// auto IdleAnimation = unarmed ? RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_H2H_Block_NPC") : RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_DW_Block_NPC");
-			// if (!IdleAnimation)
-			// {
-			// 	logger::info("Idle not found");
-			// 	return;
-			// }
-
-			// auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, false, false, nullptr);
-
-			// if (result)
-			// {
-			// 	logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
-			// }else{
-
-			// 	logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
-			// }
-
 			protagonist->NotifyAnimationGraph("blockStart");
-				
 		}
 	}
 
@@ -1854,15 +1836,6 @@ namespace hooks
 
 	void OnMeleeHitHook::AssessBlockSituation(RE::Actor *protagonist, RE::Actor *enemy)
 	{
-		if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
-		{
-			logger::info("{} is blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
-		}
-		else
-		{
-			logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
-		}
-
 		if (GetLOS(protagonist, enemy) && (enemy->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy, "IsAttacking")) 
 		&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
 		<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
@@ -1891,6 +1864,8 @@ namespace hooks
 
 	bool AttackActionHook::PerformAttackAction(RE::TESActionData *a_actionData)
 	{
+		return _PerformAttackAction(a_actionData);
+		
 		// auto protagonist = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
 		// auto enemy = protagonist ? protagonist->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
 
@@ -1940,8 +1915,6 @@ namespace hooks
 
 		// AttackRangeCheck::CheckPathing(enemy.get(), protagonist)
 
-		return _PerformAttackAction(a_actionData);
-
 		// if (OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) > OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) && OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) > 0.0f)
 		// {
 		// 	if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && protagonist->GetActorRuntimeData().currentProcess)
@@ -1962,6 +1935,32 @@ namespace hooks
 		// else
 		// {
 		// 	logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+		// }
+
+		// if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
+		// {
+		// 	logger::info("{} is blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+		// }
+		// else
+		// {
+		// 	logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+		// }
+
+		// auto IdleAnimation = unarmed ? RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_H2H_Block_NPC") : RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_DW_Block_NPC");
+		// if (!IdleAnimation)
+		// {
+		// 	logger::info("Idle not found");
+		// 	return;
+		// }
+
+		// auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, false, false, nullptr);
+
+		// if (result)
+		// {
+		// 	logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
+		// }else{
+
+		// 	logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
 		// }
 	}
 
