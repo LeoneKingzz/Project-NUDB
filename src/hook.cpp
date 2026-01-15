@@ -1505,24 +1505,14 @@ namespace hooks
 
 	void OnMeleeHitHook::Update(RE::Actor* a_actor, [[maybe_unused]] float a_delta)
 	{
-		if (a_actor->GetActorRuntimeData().currentProcess && a_actor->GetActorRuntimeData().currentProcess->InHighProcess() && a_actor->Is3DLoaded()){
+		if (a_actor->GetActorRuntimeData().currentProcess && a_actor->GetActorRuntimeData().currentProcess->InHighProcess() && a_actor->Is3DLoaded() && a_actor->IsInCombat()){
 
-			if (GetBoolVariable(a_actor, "bNUB_IsBlocking"))
+			// GetSingleton()->Process_Updates(a_actor, std::chrono::steady_clock::now());
+
+			if (auto enemy = GetCombatTarget(a_actor); enemy)
 			{
-				GetSingleton()->Process_Updates(a_actor, std::chrono::steady_clock::now());
+				GetSingleton()->AssessBlockSituation(a_actor, enemy);
 			}
-
-			// if (auto combatcontrol = a_actor->GetActorRuntimeData().combatController; combatcontrol)
-			// {
-			// 	if (getrace_IsWerebeast(a_actor))
-			// 	{
-			// 		Mod_CombatInventory_Claws(a_actor, combatcontrol);
-			// 	}
-			// 	else if (GetBoolVariable(a_actor, "bRBL_IsModdedClaws"))
-			// 	{
-			// 		Mod_CombatInventory_Claws_Reset(a_actor, combatcontrol);
-			// 	}
-			// }
 		}
 	}
 
@@ -1845,6 +1835,19 @@ namespace hooks
 		Score += (protagonist->AsActorValueOwner()->GetActorValue(RE::ActorValue::kBlock) / 100.0f) * block_chance.Block_Weighting;
 
 		return Score;
+	}
+
+	RE::Actor *OnMeleeHitHook::GetCombatTarget(RE::Actor *a_actor)
+	{
+		if (auto t_handle = a_actor->GetActorRuntimeData().currentCombatTarget; t_handle)
+		{
+			if (auto t_ptr = t_handle.get(); t_ptr)
+			{
+				return t_ptr.get();
+			}
+		}
+
+		return nullptr;
 	}
 
 	void OnMeleeHitHook::AssessBlockSituation(RE::Actor *protagonist, RE::Actor *enemy)

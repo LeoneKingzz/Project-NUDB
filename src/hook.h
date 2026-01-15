@@ -185,6 +185,8 @@ namespace hooks
 			auto result = false;
 			return a_actor->HasLineOfSight(a_target, result) && result;
 		};
+
+		static RE::Actor * GetCombatTarget(RE::Actor *a_actor);
 		static bool IsWeaponOut(RE::Actor* actor);
 		void Update(RE::Actor* a_actor, float a_delta);
 		float AV_Mod(RE::Actor *a_actor, int a_aggression, float input, float mod);
