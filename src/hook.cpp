@@ -270,6 +270,7 @@ namespace hooks
 					switch (*form->formType)
 					{
 					case RE::FormType::Weapon:
+						logger::info("{}'s weapon forms are detected", actor->GetName());
 						if (const auto equippedWeapon = form->As<RE::TESObjectWEAP>())
 						{
 							switch (equippedWeapon->GetWeaponType())
