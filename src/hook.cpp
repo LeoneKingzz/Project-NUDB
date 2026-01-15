@@ -320,6 +320,8 @@ namespace hooks
 				}
 				continue;
 			}
+		}else{
+			logger::info("{}'s weapon formlist is empty", actor->GetName());
 		}
 
 		if (result == -1)
@@ -334,6 +336,10 @@ namespace hooks
 					{
 						switch (item.item->GetType())
 						{
+						case TYPE::kMelee:
+							result = 0;
+							break;
+
 						case TYPE::kTorch:
 							result = 11;
 							break;
