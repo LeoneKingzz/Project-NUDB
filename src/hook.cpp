@@ -1849,7 +1849,10 @@ namespace hooks
 
 	void OnMeleeHitHook::AssessBlockSituation(RE::Actor *protagonist, RE::Actor *enemy)
 	{
-		if (GetLOS(protagonist, enemy) && (enemy->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy, "IsAttacking")) && OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) <= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() && !OnMeleeHitHook::IsRangedCombatant(enemy))
+		if (GetLOS(protagonist, enemy) && (enemy->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy, "IsAttacking")) 
+		&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
+		<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
+		&& !OnMeleeHitHook::IsRangedCombatant(enemy))
 		{
 
 			RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy);
