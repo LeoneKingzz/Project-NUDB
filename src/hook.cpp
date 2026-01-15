@@ -1505,7 +1505,7 @@ namespace hooks
 
 	void OnMeleeHitHook::Update(RE::Actor* a_actor, [[maybe_unused]] float a_delta)
 	{
-		if (a_actor->GetActorRuntimeData().currentProcess && a_actor->GetActorRuntimeData().currentProcess->InHighProcess() && a_actor->Is3DLoaded() && a_actor->IsInCombat()){
+		if (a_actor->GetActorRuntimeData().currentProcess && a_actor->GetActorRuntimeData().currentProcess->InHighProcess() && a_actor->Is3DLoaded()){
 
 			if (GetBoolVariable(a_actor, "bNUB_IsBlocking"))
 			{
@@ -1865,7 +1865,7 @@ namespace hooks
 		auto protagonist = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
 		auto enemy = protagonist ? protagonist->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
 
-		if (enemy && enemy.get() && !OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking") && GetLOS(protagonist, enemy.get()) 
+		if (enemy && enemy.get() && !OnMeleeHitHook::GetBoolVariable(protagonist, "bNUB_IsBlocking") && GetLOS(protagonist, enemy.get()) 
 		&& (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
 		&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
 		<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess 
@@ -1938,7 +1938,7 @@ namespace hooks
 						switch (hash(function.c_str(), function.size()))
 						{
 						case "Block_Update"_h:
-							if (GetBoolVariable(a_actor, "bNUB_IsBlocking") && GetBoolVariable(a_actor, "Isblocking"))
+							if (GetBoolVariable(a_actor, "bNUB_IsBlocking"))
 							{
 								if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && a_actor->GetActorRuntimeData().currentProcess)
 								{
