@@ -389,7 +389,10 @@ namespace hooks
 		bool left = false;
 		bool right = false;
 
-		switch (GetEquippedItemType(actor, false))
+		auto iL = GetEquippedItemType(actor, false);
+		auto iR = GetEquippedItemType(actor, true);
+
+		switch (iR)
 		{
 		case 0:
 			right = true;
@@ -400,7 +403,7 @@ namespace hooks
 			break;
 		}
 
-		switch (GetEquippedItemType(actor, true))
+		switch (iL)
 		{
 		case 0:
 			left = true;
@@ -411,6 +414,9 @@ namespace hooks
 			break;
 		}
 
+		logger::info("Actor: {}  Left: {} Right: {}", actor->GetName(), iL, iR);
+
+		
 		return left && right;
 	}
 
@@ -420,7 +426,10 @@ namespace hooks
 		bool left = false;
 		bool right = false;
 
-		switch (GetEquippedItemType(actor, false))
+		auto iL = GetEquippedItemType(actor, false);
+		auto iR = GetEquippedItemType(actor, true);
+
+		switch (iR)
 		{
 		case 1:
 		case 2:
@@ -434,7 +443,7 @@ namespace hooks
 			break;
 		}
 
-		switch (GetEquippedItemType(actor, true))
+		switch (iL)
 		{
 		case 1:
 		case 2:
@@ -447,6 +456,8 @@ namespace hooks
 
 			break;
 		}
+
+		logger::info("Actor: {}  Left: {} Right: {}", actor->GetName(), iL, iR);
 
 		return left && right;
 	}
@@ -1854,7 +1865,7 @@ namespace hooks
 
 				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
 				{
-					logger::info("hook active");
+					logger::info("H2H active");
 					// if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get()) 
 					// && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
 					// {
@@ -1867,6 +1878,8 @@ namespace hooks
 				}
 				else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
 				{
+					logger::info("Dualw active");
+
 					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
 					{
 						return true;
