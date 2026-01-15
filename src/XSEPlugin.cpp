@@ -18,10 +18,10 @@ void MessageHandler(SKSE::MessagingInterface::Message *a_msg)
 
 	//     break;
 
-	case SKSE::MessagingInterface::kPostPostLoad:
-		hooks::OnMeleeHitHook::GetSingleton()->init();
+	// case SKSE::MessagingInterface::kPostPostLoad:
+	// 	hooks::OnMeleeHitHook::GetSingleton()->init();
 
-		break;
+	// 	break;
 
 	default:
 

@@ -1704,7 +1704,8 @@ namespace hooks
 			{
 				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
 				{
-					if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get()) && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
+					if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get()) 
+					&& OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
 					{
 						if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get(), true))
 						{
