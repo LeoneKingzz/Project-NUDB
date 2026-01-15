@@ -12,11 +12,10 @@ void MessageHandler(SKSE::MessagingInterface::Message *a_msg)
 
 		break;
 
-	// case SKSE::MessagingInterface::kPostLoad:
-	// 	hooks::install_postload();
-		
+	case SKSE::MessagingInterface::kPostLoad:
+		hooks::AttackActionHook::InstallHook();
 
-	//     break;
+		break;
 
 	// case SKSE::MessagingInterface::kPostPostLoad:
 	// 	hooks::OnMeleeHitHook::GetSingleton()->init();
