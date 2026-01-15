@@ -1812,7 +1812,7 @@ namespace hooks
 				return false;
 			}
 
-			auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, true, true, enemy);
+			auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, true, false, enemy);
 
 			// if (result)
 			// {
