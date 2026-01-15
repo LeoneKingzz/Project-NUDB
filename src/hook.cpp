@@ -1819,7 +1819,7 @@ namespace hooks
 
 			if (result)
 			{
-				protagonist->SetGraphVariableBool("bNUB_IsBlocking", true);
+				// protagonist->SetGraphVariableBool("bNUB_IsBlocking", true);
 				// auto num = OnMeleeHitHook::GetSingleton()->GenerateRandomDouble(3.0, 8.0);
 				// auto required = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::duration<double>(num));
 
@@ -1865,63 +1865,40 @@ namespace hooks
 		auto protagonist = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
 		auto enemy = protagonist ? protagonist->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
 
-		if (enemy && enemy.get())
+		if (enemy && enemy.get() && GetLOS(protagonist, enemy.get()) && (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
+		&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
+		<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
+		&& !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
 		{
-			if (OnMeleeHitHook::GetBoolVariable(protagonist, "bNUB_IsBlocking"))
+			RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
+			auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
+
+			float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
+
+			if (abs(angle) < attackAngle)
 			{
-				if (OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) > OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) 
-				&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) > 0.0f)
+				// logger::info("hook active");
+
+				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
 				{
-					if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && protagonist->GetActorRuntimeData().currentProcess)
+					// logger::info("H2H active");
+					// if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get())
+					// && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
+					// {
+
+					// }
+					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get(), true))
 					{
-						if (auto result = SCAR::PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, SCAR::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
-						{
-							protagonist->SetGraphVariableBool("bNUB_IsBlocking", false);
-							logger::info("{} successfully stopped blocking", protagonist->GetName());
-							return true;
-						}
+						return true;
 					}
 				}
-			}
-			else
-			{
-
-				if (GetLOS(protagonist, enemy.get()) && (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
-				&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
-				<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
-				&& !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
+				else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
 				{
-					RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
-					auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
+					// logger::info("Dualw active");
 
-					float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
-
-					if (abs(angle) < attackAngle)
+					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
 					{
-						// logger::info("hook active");
-
-						if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
-						{
-							// logger::info("H2H active");
-							// if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get())
-							// && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
-							// {
-
-							// }
-							if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get(), true))
-							{
-								return true;
-							}
-						}
-						else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
-						{
-							// logger::info("Dualw active");
-
-							if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
-							{
-								return true;
-							}
-						}
+						return true;
 					}
 				}
 			}
@@ -1931,6 +1908,19 @@ namespace hooks
 		// AttackRangeCheck::CheckPathing(enemy.get(), protagonist)
 
 		return _PerformAttackAction(a_actionData);
+
+		// if (OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) > OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) && OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) > 0.0f)
+		// {
+		// 	if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && protagonist->GetActorRuntimeData().currentProcess)
+		// 	{
+		// 		if (auto result = SCAR::PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, SCAR::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
+		// 		{
+		// 			protagonist->SetGraphVariableBool("bNUB_IsBlocking", false);
+		// 			logger::info("{} successfully stopped blocking", protagonist->GetName());
+		// 			return true;
+		// 		}
+		// 	}
+		// }
 	}
 
 	void OnMeleeHitHook::Process_Updates(RE::Actor *a_actor, std::chrono::steady_clock::time_point time_now)
