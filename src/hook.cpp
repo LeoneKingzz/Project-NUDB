@@ -1784,12 +1784,13 @@ namespace hooks
 			return false;
 
 		auto it = OnMeleeHitHook::GetSingleton()->Get_ReactiveDodge_Distance(enemy);
-		
+
 		if (protagonist->GetPosition().GetDistance(enemy->GetPosition()) <= it.first)
 		{
 			auto IdleAnimation = unarmed ? RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_H2H_Block_NPC") : RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_DW_Block_NPC");
 			if (!IdleAnimation)
 			{
+				logger::info("Idle not found");
 				return false;
 			}
 
@@ -1841,6 +1842,8 @@ namespace hooks
 		&& OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) <= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess 
 		&& !protagonist->IsPlayerRef() && !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
 		{
+			logger::info("hook active");
+			
 			RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
 			auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
 
