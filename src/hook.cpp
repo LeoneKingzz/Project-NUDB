@@ -1818,7 +1818,7 @@ namespace hooks
 
 		auto it = OnMeleeHitHook::GetSingleton()->Get_ReactiveDodge_Distance(enemy);
 
-		if (protagonist->GetPosition().GetDistance(enemy->GetPosition()) <= it.first)
+		if (protagonist->GetPosition().GetDistance(enemy->GetPosition()) <= it.first && OnMeleeHitHook::CanBlock(protagonist))
 		{
 			protagonist->NotifyAnimationGraph("blockStart");
 		}
