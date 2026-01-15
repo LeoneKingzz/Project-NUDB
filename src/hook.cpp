@@ -391,6 +391,33 @@ namespace hooks
 		return result;
 	}
 
+	bool OnMeleeHitHook::CanBlock(RE::Actor *actor)
+	{
+		bool result = false;
+
+		switch (actor->AsActorState()->GetAttackState())
+		{
+		case RE::ATTACK_STATE_ENUM::kNone:
+		case RE::ATTACK_STATE_ENUM::kDraw:
+		case RE::ATTACK_STATE_ENUM::kBash:
+			result = true;
+			break;
+		
+		default:
+			break;
+		}
+
+		if(!result)
+		{
+			if (GetIntVariable(actor, "MCO_IsInRecovery"))
+			{
+				result = true;
+			}
+		}
+
+		return result;
+	}
+
 	bool OnMeleeHitHook::IsHandToHandMelee(RE::Actor *actor)
 	{
 		bool left = false;

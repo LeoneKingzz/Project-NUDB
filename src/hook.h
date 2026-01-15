@@ -176,6 +176,7 @@ namespace hooks
 		static std::vector<RE::TESForm *> GetEquippedForm(RE::Actor *actor, bool right = false, bool left = false);
 		float Get_Attack_Speed(RE::Actor *actor, const RE::TESObjectWEAP *a_weapon, bool IsLeftAttack);
 		static int GetEquippedItemType(RE::Actor *actor, bool lefthand);
+		static bool CanBlock(RE::Actor *actor);
 		static bool IsRangedCombatant(RE::Actor *actor);
 		static bool IsHandToHandMelee(RE::Actor *actor);
 		static bool IsDualWieldMelee(RE::Actor *actor);
