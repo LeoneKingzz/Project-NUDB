@@ -1702,25 +1702,22 @@ namespace hooks
 
 			if (abs(angle) < attackAngle && AttackRangeCheck::CheckPathing(enemy.get(), protagonist))
 			{
-				
-			}
-
-			if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
-			{
-				if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") 
-				&& OnMeleeHitHook::isHumanoid(enemy.get()) && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
+				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
 				{
-					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get(), true))
+					if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get()) && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
+					{
+						if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get(), true))
+						{
+							return true;
+						}
+					}
+				}
+				else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
+				{
+					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
 					{
 						return true;
 					}
-				}
-			}
-			else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
-			{
-				if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
-				{
-					return true;
 				}
 			}
 		}
