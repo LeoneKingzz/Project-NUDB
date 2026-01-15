@@ -1507,7 +1507,10 @@ namespace hooks
 	{
 		if (a_actor->GetActorRuntimeData().currentProcess && a_actor->GetActorRuntimeData().currentProcess->InHighProcess() && a_actor->Is3DLoaded() && a_actor->IsInCombat()){
 
-			// GetSingleton()->Process_Updates(a_actor, std::chrono::steady_clock::now());
+			if (GetBoolVariable(a_actor, "bNUB_IsBlocking"))
+			{
+				GetSingleton()->Process_Updates(a_actor, std::chrono::steady_clock::now());
+			}
 
 			// if (auto combatcontrol = a_actor->GetActorRuntimeData().combatController; combatcontrol)
 			// {
@@ -1520,8 +1523,6 @@ namespace hooks
 			// 		Mod_CombatInventory_Claws_Reset(a_actor, combatcontrol);
 			// 	}
 			// }
-
-			// RE::TESActionData a_data;
 		}
 	}
 
@@ -1816,6 +1817,12 @@ namespace hooks
 
 			if (result)
 			{
+				protagonist->SetGraphVariableBool("bNUB_IsBlocking", true);
+				auto num = OnMeleeHitHook::GetSingleton()->GenerateRandomDouble(3.0, 8.0);
+				auto required = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::duration<double>(num));
+
+				OnMeleeHitHook::GetSingleton()->RegisterforUpdate(protagonist, std::make_tuple(nullptr, std::chrono::steady_clock::now(), required, "Block_Update"));
+
 				logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
 			}else{
 
@@ -1928,7 +1935,12 @@ namespace hooks
 						auto H = RE::TESDataHandler::GetSingleton();
 						switch (hash(function.c_str(), function.size()))
 						{
-						case "Dummy_Update"_h:
+						case "Block_Update"_h:
+							if (GetBoolVariable(a_actor, "bNUB_IsBlocking") && GetBoolVariable(a_actor, "Isblocking"))
+							{
+								a_actor->SetGraphVariableBool("bNUB_IsBlocking", false);
+								a_actor->NotifyAnimationGraph("blockStop");
+							}
 
 							break;
 
