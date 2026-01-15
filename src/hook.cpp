@@ -1870,6 +1870,13 @@ namespace hooks
 		<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
 		&& !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
 		{
+			if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
+			{
+				logger::info("{} is blocking. iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+			}else
+			{
+				logger::info("{} is not blocking. iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+			}
 			RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
 			auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
 
