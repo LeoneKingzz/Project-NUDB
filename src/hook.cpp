@@ -1704,7 +1704,7 @@ namespace hooks
 
 			float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
 
-			if (abs(angle) < attackAngle && AttackRangeCheck::CheckPathing(enemy.get(), protagonist))
+			if (abs(angle) < attackAngle)
 			{
 				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
 				{
@@ -1726,6 +1726,8 @@ namespace hooks
 				}
 			}
 		}
+
+		// AttackRangeCheck::CheckPathing(enemy.get(), protagonist)
 
 		return _PerformAttackAction(a_actionData);
 	}
