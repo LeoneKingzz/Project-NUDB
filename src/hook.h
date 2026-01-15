@@ -172,7 +172,9 @@ namespace hooks
 		static bool IsCasting(RE::Actor *a_actor);
 		static void UpdateCombatTarget(RE::Actor* a_actor);
 		static bool isHumanoid(RE::Actor *a_actor);
+		std::pair<float, float> Get_ReactiveDodge_Distance(RE::Actor *actor);
 		static std::vector<RE::TESForm *> GetEquippedForm(RE::Actor *actor, bool right = false, bool left = false);
+		float Get_Attack_Speed(RE::Actor *actor, const RE::TESObjectWEAP *a_weapon, bool IsLeftAttack);
 		static int GetEquippedItemType(RE::Actor *actor, bool lefthand);
 		static bool IsRangedCombatant(RE::Actor *actor);
 		static bool IsHandToHandMelee(RE::Actor *actor);

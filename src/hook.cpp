@@ -1507,6 +1507,145 @@ namespace hooks
 		}
 	}
 
+	float OnMeleeHitHook::Get_Attack_Speed(RE::Actor *actor, const RE::TESObjectWEAP *a_weapon, bool IsLeftAttack)
+	{
+		float total_speed = 1.0f;
+		if (IsLeftAttack)
+		{
+			float av_speed = actor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kLeftWeaponSpeedMultiply);
+			if (av_speed == 0.0f)
+			{
+				av_speed = 1.0f;
+			}
+			float weapon_speed = a_weapon->GetSpeed();
+
+			total_speed = av_speed * weapon_speed;
+		}
+		else
+		{
+
+			float av_speed = actor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kWeaponSpeedMult);
+			if (av_speed == 0.0f)
+			{
+				av_speed = 1.0f;
+			}
+			float weapon_speed = a_weapon->GetSpeed();
+
+			total_speed = av_speed * weapon_speed;
+		}
+
+		return total_speed;
+	}
+
+	std::pair<float, float> OnMeleeHitHook::Get_ReactiveDodge_Distance(RE::Actor *actor)
+	{
+		float distance = 200.0f;
+		float attack_speed = 0.0f;
+		bool IsLeftAttack = false;
+
+		auto aiProcess = actor->GetActorRuntimeData().currentProcess;
+
+		if (aiProcess && aiProcess->high && aiProcess->high->attackData)
+		{
+			// const RE::TESForm*
+			auto equippedLi = aiProcess->high->attackData.get();
+			if (equippedLi)
+			{
+				IsLeftAttack = equippedLi->IsLeftAttack();
+				const RE::TESForm *equipped = IsLeftAttack ? aiProcess->GetEquippedLeftHand() : aiProcess->GetEquippedRightHand();
+				if (equipped && equipped->IsWeapon())
+				{
+
+					attack_speed = GetSingleton()->Get_Attack_Speed(actor, equipped->As<RE::TESObjectWEAP>(), IsLeftAttack);
+
+					switch (equipped->As<RE::TESObjectWEAP>()->GetWeaponType())
+					{
+					case RE::WEAPON_TYPE::kOneHandSword:
+						distance = 310.0f;
+						break;
+					case RE::WEAPON_TYPE::kOneHandAxe:
+						distance = 305.0f;
+						break;
+					case RE::WEAPON_TYPE::kOneHandMace:
+						distance = 300.0f;
+						break;
+					case RE::WEAPON_TYPE::kOneHandDagger:
+						distance = 250.0f;
+						break;
+					case RE::WEAPON_TYPE::kTwoHandAxe:
+						distance = 350.0f;
+						break;
+					case RE::WEAPON_TYPE::kTwoHandSword:
+						distance = 370.0f;
+						break;
+					case RE::WEAPON_TYPE::kHandToHandMelee:
+						if (!isHumanoid(actor))
+						{
+							distance = 350.0f;
+						}
+						else
+						{
+							distance = 150.0f;
+						}
+						break;
+					case RE::WEAPON_TYPE::kBow:
+						distance = 3000.0f;
+						break;
+					case RE::WEAPON_TYPE::kCrossbow:
+						distance = 3000.0f;
+						break;
+					case RE::WEAPON_TYPE::kStaff:
+						distance = 320.0f;
+						break;
+					default:
+						distance = 150.0f;
+						break;
+					}
+				}
+				else if (equipped && equipped->IsArmor())
+				{
+					distance = 250.0f;
+					attack_speed = (actor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kSpeedMult) / 100.0f);
+				}
+				else
+				{
+					if (!isHumanoid(actor))
+					{
+						distance = 350.0f;
+					}
+					else
+					{
+						distance = 150.0f;
+					}
+				}
+			}
+			else
+			{
+				if (!isHumanoid(actor))
+				{
+					distance = 350.0f;
+				}
+				else
+				{
+					distance = 150.0f;
+				}
+			}
+		}
+		else
+		{
+			if (!isHumanoid(actor))
+			{
+				distance = 350.0f;
+			}
+			else
+			{
+				distance = 200.0f;
+			}
+		}
+
+		return {distance, attack_speed};
+	}
+
 	bool AttackRangeCheck::CheckPathing(RE::Actor *enemy, RE::Actor *protagonist)
 	{
 		if (!enemy || !protagonist || !enemy->Get3D() || !protagonist->Get3D() || !protagonist->GetActorRuntimeData().currentProcess || !enemy->GetActorRuntimeData().currentProcess)
@@ -1644,8 +1783,9 @@ namespace hooks
 		if (!protagonist || !enemy || !protagonist->GetActorRuntimeData().currentProcess)
 			return false;
 
-		const float weaponReach = Actor_GetReach(enemy);
-		if (AttackRangeCheck::WithinAttackRange(enemy, protagonist, 150.0f + weaponReach, 0.0f, -60.0f, 60.0f))
+		auto it = OnMeleeHitHook::GetSingleton()->Get_ReactiveDodge_Distance(enemy);
+		
+		if (protagonist->GetPosition().GetDistance(enemy->GetPosition()) <= it.first)
 		{
 			auto IdleAnimation = unarmed ? RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_H2H_Block_NPC") : RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_DW_Block_NPC");
 			if (!IdleAnimation)
@@ -1667,6 +1807,8 @@ namespace hooks
 		}
 
 		return false;
+
+		// AttackRangeCheck::WithinAttackRange(enemy, protagonist, 150.0f + weaponReach, 0.0f, -60.0f, 60.0f)
 	}
 
 	float SCAR::get_block_chance(RE::Actor *protagonist){
