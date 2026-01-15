@@ -1878,6 +1878,7 @@ namespace hooks
 						{
 							protagonist->SetGraphVariableBool("bNUB_IsBlocking", false);
 							logger::info("{} successfully stopped blocking", protagonist->GetName());
+							return true;
 						}
 					}
 				}
