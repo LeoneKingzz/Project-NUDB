@@ -1577,6 +1577,10 @@ namespace hooks
 				// 	BottomHeight = std::min(bound.worldBoundMin.z, bound.worldBoundMax.z);
 				// 	return true;
 				// }
+
+				TopHeight = a_actor->GetPositionZ() + a_actor->GetBoundMax().z;
+				BottomHeight = a_actor->GetPositionZ();
+				return true;
 			}
 			else
 			{
@@ -1631,34 +1635,32 @@ namespace hooks
 		return itr != actionMap.end() ? itr->second : DefaultObject::kActionRightAttack;
 	}
 
-	bool SCAR::PerformSCARAction(RE::Actor *protagonist, RE::Actor *enemy)
+	bool SCAR::PerformSCARAction(RE::Actor *protagonist, RE::Actor *enemy, bool unarmed)
 	{
 		if (!protagonist || !enemy || !protagonist->GetActorRuntimeData().currentProcess)
 			return false;
 
 		const float weaponReach = Actor_GetReach(enemy);
-		// if (AttackRangeCheck::WithinAttackRange(enemy, protagonist, 150.0f + weaponReach, 0.0f, GetStartAngle(), GetEndAngle()))
-		// {
-		// 	auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("IdleAnimationEditorID");
-		// 	if (!IdleAnimation)
-		// 	{
-		// 		// ERROR("Not Vaild Idle Animation Form Get: \"{}\"!", IdleAnimationEditorID);
-		// 		return false;
-		// 	}
+		if (AttackRangeCheck::WithinAttackRange(enemy, protagonist, 150.0f + weaponReach, 0.0f, -60.0f, 60.0f))
+		{
+			auto IdleAnimation = unarmed ? RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_H2H_Block_NPC") : RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_DW_Block_NPC");
+			if (!IdleAnimation)
+			{
+				return false;
+			}
 
-		// 	// DefaultObject;
+			auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, true, true, enemy);
 
-		// 	auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, GetActionObject(), IdleAnimation, true, true, enemy);
-			
-		// 	if (result)
-		// 	{
+			if (result)
+			{
+				logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
+			}else{
+
+				logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
+			}
 				
-		// 	}else{
-
-		// 	}
-				
-		// 	return result;
-		// }
+			return result;
+		}
 
 		return false;
 	}
@@ -1708,7 +1710,7 @@ namespace hooks
 				if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") 
 				&& OnMeleeHitHook::isHumanoid(enemy.get()) && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
 				{
-					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
+					if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get(), true))
 					{
 						return true;
 					}
@@ -1722,9 +1724,6 @@ namespace hooks
 				}
 			}
 		}
-
-		// NUB_H2H_Block_NPC
-		// NUB_DW_Block_NPC
 
 		return _PerformAttackAction(a_actionData);
 	}

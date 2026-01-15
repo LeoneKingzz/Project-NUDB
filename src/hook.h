@@ -751,7 +751,7 @@ namespace hooks
 			return &avInterface;
 		}
 
-		bool PerformSCARAction(RE::Actor *protagonist, RE::Actor *enemy);
+		bool PerformSCARAction(RE::Actor *protagonist, RE::Actor *enemy, bool unarmed = false);
 
 		static bool PlayIdle(RE::AIProcess *a_this, RE::Actor *a_actor, RE::DEFAULT_OBJECT a_action, RE::TESIdleForm *a_idle, bool a_arg5, bool a_arg6, RE::TESObjectREFR *a_target)
 		{
