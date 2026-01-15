@@ -1813,25 +1813,25 @@ namespace hooks
 				return false;
 			}
 
-			protagonist->SetGraphVariableInt("iWantBlock", 1);
+			// protagonist->SetGraphVariableInt("iWantBlock", 1);
 
-			// auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, true, false, enemy);
+			auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, true, false, enemy);
 
-			// if (result)
-			// {
-			// 	protagonist->SetGraphVariableBool("bNUB_IsBlocking", true);
-			// 	auto num = OnMeleeHitHook::GetSingleton()->GenerateRandomDouble(3.0, 8.0);
-			// 	auto required = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::duration<double>(num));
+			if (result)
+			{
+				protagonist->SetGraphVariableBool("bNUB_IsBlocking", true);
+				auto num = OnMeleeHitHook::GetSingleton()->GenerateRandomDouble(3.0, 8.0);
+				auto required = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::duration<double>(num));
 
-			// 	OnMeleeHitHook::GetSingleton()->RegisterforUpdate(protagonist, std::make_tuple(nullptr, std::chrono::steady_clock::now(), required, "Block_Update"));
+				OnMeleeHitHook::GetSingleton()->RegisterforUpdate(protagonist, std::make_tuple(nullptr, std::chrono::steady_clock::now(), required, "Block_Update"));
 
-			// 	logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
-			// }else{
+				logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
+			}else{
 
-			// 	logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
-			// }
+				logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
+			}
 				
-			// return result;
+			return result;
 		}
 
 		return false;
