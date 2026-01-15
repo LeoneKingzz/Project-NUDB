@@ -1568,28 +1568,32 @@ namespace hooks
 
 		auto GetAabbTopBottomHeight = [](RE::Actor *a_actor, float &TopHeight, float &BottomHeight) -> bool
 		{
-			if (a_actor->Is3rdPersonVisible())
-			{
-				// ObjectBound bound;
-				// if (Util::GetBBCharacter(a_actor, bound))
-				// {
-				// 	TopHeight = std::max(bound.worldBoundMin.z, bound.worldBoundMax.z);
-				// 	BottomHeight = std::min(bound.worldBoundMin.z, bound.worldBoundMax.z);
-				// 	return true;
-				// }
+			// if (a_actor->Is3rdPersonVisible())
+			// {
+			// 	// ObjectBound bound;
+			// 	// if (Util::GetBBCharacter(a_actor, bound))
+			// 	// {
+			// 	// 	TopHeight = std::max(bound.worldBoundMin.z, bound.worldBoundMax.z);
+			// 	// 	BottomHeight = std::min(bound.worldBoundMin.z, bound.worldBoundMax.z);
+			// 	// 	return true;
+			// 	// }
 
-				TopHeight = a_actor->GetPositionZ() + a_actor->GetBoundMax().z;
-				BottomHeight = a_actor->GetPositionZ();
-				return true;
-			}
-			else
-			{
-				TopHeight = a_actor->GetPositionZ() + a_actor->GetBoundMax().z;
-				BottomHeight = a_actor->GetPositionZ();
-				return true;
-			}
+			// 	TopHeight = a_actor->GetPositionZ() + a_actor->GetBoundMax().z;
+			// 	BottomHeight = a_actor->GetPositionZ();
+			// 	return true;
+			// }
+			// else
+			// {
+			// 	TopHeight = a_actor->GetPositionZ() + a_actor->GetBoundMax().z;
+			// 	BottomHeight = a_actor->GetPositionZ();
+			// 	return true;
+			// }
 
-			return false;
+			// return false;
+
+			TopHeight = a_actor->GetPositionZ() + a_actor->GetBoundMax().z;
+			BottomHeight = a_actor->GetPositionZ();
+			return true;
 		};
 
 		float enemyBottomHeight, enemyTopHeight, protagonistBottomHeight, protagonistTopHeight;
