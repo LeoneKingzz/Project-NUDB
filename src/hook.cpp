@@ -1869,11 +1869,11 @@ namespace hooks
 		{
 			if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
 			{
-				logger::info("{} is blocking. iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+				logger::info("{} is blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
 			}
 			else
 			{
-				logger::info("{} is not blocking. iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+				logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
 			}
 
 			if (GetLOS(protagonist, enemy.get()) && (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
