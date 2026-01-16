@@ -1794,24 +1794,7 @@ namespace hooks
 		return localDistance <= max_distance && localDistance >= min_distance && withInAngle;
 	}
 
-	SCAR::DefaultObject SCAR::GetActionObject(std::string actionType)
-	{
-		static std::map<const std::string, const DefaultObject> actionMap = {
-			{"RA", DefaultObject::kActionRightAttack},
-			{"RPA", DefaultObject::kActionRightPowerAttack},
-			{"LA", DefaultObject::kActionLeftAttack},
-			{"LPA", DefaultObject::kActionLeftPowerAttack},
-			{"DA", DefaultObject::kActionDualAttack},
-			{"DPA", DefaultObject::kActionDualPowerAttack},
-			{"BA", DefaultObject::kActionRightAttack},
-			{"BPA", DefaultObject::kActionRightPowerAttack},
-			{"IDLE", DefaultObject::kActionIdle}};
-
-		auto itr = actionMap.find(actionType);
-		return itr != actionMap.end() ? itr->second : DefaultObject::kActionRightAttack;
-	}
-
-	void SCAR::PerformBlockAction(RE::Actor *protagonist, RE::Actor *enemy, bool unarmed)
+	void Block::PerformBlockAction(RE::Actor *protagonist, RE::Actor *enemy, bool unarmed)
 	{
 		if (!protagonist || !enemy || !protagonist->GetActorRuntimeData().currentProcess)
 			return;
@@ -1824,7 +1807,7 @@ namespace hooks
 		}
 	}
 
-	float SCAR::get_block_chance(RE::Actor *protagonist){
+	float Block::get_block_chance(RE::Actor *protagonist){
 		float Score = 0.0f;
 
 		/////////////////////////////////////////////////Defensive & Skirmish Weighting ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1862,7 +1845,7 @@ namespace hooks
 	{
 		if (GetLOS(protagonist, enemy) && (enemy->IsAttacking() || GetBoolVariable(enemy, "IsAttacking")) 
 		&& GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
-		<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
+		<= Block::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
 		&& !IsRangedCombatant(enemy))
 		{
 
@@ -1878,12 +1861,12 @@ namespace hooks
 				{
 					if (isHumanoid(protagonist))
 					{
-						SCAR::GetSingleton()->PerformBlockAction(protagonist, enemy, true);
+						Block::GetSingleton()->PerformBlockAction(protagonist, enemy, true);
 					}
 				}
 				else if (IsDualWieldMelee(protagonist))
 				{
-					SCAR::GetSingleton()->PerformBlockAction(protagonist, enemy);
+					Block::GetSingleton()->PerformBlockAction(protagonist, enemy);
 				}
 			}
 		}
@@ -1900,7 +1883,7 @@ namespace hooks
 		// {
 		// 	if (GetLOS(protagonist, enemy.get()) && (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
 		// 	&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
-		// 	<= SCAR::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
+		// 	<= Block::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
 		// 	&& !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
 		// 	{
 		// 		logger::info("reqs passed");
@@ -1922,7 +1905,7 @@ namespace hooks
 		// 				// {
 
 		// 				// }
-		// 				if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get(), true))
+		// 				if (Block::GetSingleton()->PerformBlockAction(protagonist, enemy.get(), true))
 		// 				{
 		// 					return true;
 		// 				}
@@ -1931,7 +1914,7 @@ namespace hooks
 		// 			{
 		// 				logger::info("Dualw active");
 
-		// 				if (SCAR::GetSingleton()->PerformSCARAction(protagonist, enemy.get()))
+		// 				if (Block::GetSingleton()->PerformBlockAction(protagonist, enemy.get()))
 		// 				{
 		// 					return true;
 		// 				}
@@ -1946,7 +1929,7 @@ namespace hooks
 		// {
 		// 	if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && protagonist->GetActorRuntimeData().currentProcess)
 		// 	{
-		// 		if (auto result = SCAR::PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, SCAR::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
+		// 		if (auto result = Block::PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, Block::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
 		// 		{
 		// 			protagonist->SetGraphVariableBool("bNUB_IsBlocking", false);
 		// 			logger::info("{} successfully stopped blocking", protagonist->GetName());
@@ -2024,7 +2007,7 @@ namespace hooks
 							{
 								if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && a_actor->GetActorRuntimeData().currentProcess)
 								{
-									if (auto result = SCAR::PlayIdle(a_actor->GetActorRuntimeData().currentProcess, a_actor, SCAR::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
+									if (auto result = Block::PlayIdle(a_actor->GetActorRuntimeData().currentProcess, a_actor, Block::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
 									{
 										a_actor->SetGraphVariableBool("bNUB_IsBlocking", false);
 										// a_actor->NotifyAnimationGraph("blockStop");

@@ -745,14 +745,14 @@ namespace hooks
 		static void DrawOverlay(RE::Actor *enemy, RE::Actor *a_targ, float max_distance, float min_distance, float a_startAngle, float a_endAngle);
 	};
 
-	class SCAR
+	class Block
 	{
 	public:
 		using DefaultObject = RE::BGSDefaultObjectManager::DefaultObject;
 
-		static SCAR *GetSingleton()
+		static Block *GetSingleton()
 		{
-			static SCAR avInterface;
+			static Block avInterface;
 			return &avInterface;
 		}
 
@@ -765,8 +765,6 @@ namespace hooks
 			return func(a_this, a_actor, a_action, a_idle, a_arg5, a_arg6, a_target);
 		};
 
-		DefaultObject GetActionObject(std::string actionType);
-
 		float get_block_chance(RE::Actor* protagonist);
 
 		struct BlockChance_factors
@@ -776,48 +774,15 @@ namespace hooks
 
 		} block_chance;
 
-		// struct SCARActionData
-		// {
-		// private:
-		// 	float weight = 0.f;
-
-		// 	std::string IdleAnimationEditorID = "";
-
-		// 	float minDistance = 0.f;
-
-		// 	float maxDistance = 150.f;
-
-		// 	float startAngle = -60.f;
-
-		// 	float endAngle = 60.f;
-
-		// 	float chance = 100.f;
-
-		// 	std::string actionType = "RA";
-
-		// 	std::optional<float> weaponLength;
-
-		// public:
-
-		// private:
-		// 	const DefaultObject GetActionObject() const;
-		// 	_NODISCARD const float GetStartAngle() const { return startAngle / 180.f * std::numbers::pi; };
-		// 	_NODISCARD const float GetEndAngle() const { return endAngle / 180.f * std::numbers::pi; };
-
-		// 	_NODISCARD const bool IsLeftAttack() const;
-		// 	_NODISCARD const bool IsBashAttack() const;
-		// 	_NODISCARD float GetWeaponReach(RE::Actor *a_attacker) const;
-		// };
-
 	private:
 
-		SCAR() = default;
-		SCAR(const SCAR &) = delete;
-		SCAR(SCAR &&) = delete;
-		~SCAR() = default;
+		Block() = default;
+		Block(const Block &) = delete;
+		Block(Block &&) = delete;
+		~Block() = default;
 
-		SCAR &operator=(const SCAR &) = delete;
-		SCAR &operator=(SCAR &&) = delete;
+		Block &operator=(const Block &) = delete;
+		Block &operator=(Block &&) = delete;
 	};
 };
 
