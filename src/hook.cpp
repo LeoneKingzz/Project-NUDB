@@ -2003,18 +2003,18 @@ namespace hooks
 						switch (hash(function.c_str(), function.size()))
 						{
 						case "Block_Update"_h:
-							if (GetBoolVariable(a_actor, "bNUB_IsBlocking"))
-							{
-								if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && a_actor->GetActorRuntimeData().currentProcess)
-								{
-									if (auto result = Block::PlayIdle(a_actor->GetActorRuntimeData().currentProcess, a_actor, Block::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
-									{
-										a_actor->SetGraphVariableBool("bNUB_IsBlocking", false);
-										// a_actor->NotifyAnimationGraph("blockStop");
-										logger::info("{} successfully stopped blocking", a_actor->GetName());
-									}
-								}
-							}
+							// if (GetBoolVariable(a_actor, "bNUB_IsBlocking"))
+							// {
+							// 	if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && a_actor->GetActorRuntimeData().currentProcess)
+							// 	{
+							// 		if (auto result = Block::PlayIdle(a_actor->GetActorRuntimeData().currentProcess, a_actor, Block::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
+							// 		{
+							// 			a_actor->SetGraphVariableBool("bNUB_IsBlocking", false);
+							// 			// a_actor->NotifyAnimationGraph("blockStop");
+							// 			logger::info("{} successfully stopped blocking", a_actor->GetName());
+							// 		}
+							// 	}
+							// }
 
 							break;
 
