@@ -702,25 +702,6 @@ namespace hooks
 		Settings& operator=(Settings&&) = delete;
 	};
 
-	class AttackActionHook
-	{
-	public:
-		static void InstallHook()
-		{
-			SKSE::AllocTrampoline(1 << 4);
-			auto &trampoline = SKSE::GetTrampoline();
-
-			REL::Relocation<std::uintptr_t> AttackActionBase{RELOCATION_ID(48139, 49170)};
-			_PerformAttackAction = trampoline.write_call<5>(AttackActionBase.address() + REL::Relocate(0x4D7, 0x435), PerformAttackAction);
-			// INFO("Hook PerformAttackAction!");
-		};
-
-	private:
-		static bool PerformAttackAction(RE::TESActionData *a_actionData);
-
-		static inline REL::Relocation<decltype(PerformAttackAction)> _PerformAttackAction;
-	};
-
 	class AttackRangeCheck
 	{
 	public:

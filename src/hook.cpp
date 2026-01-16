@@ -1872,109 +1872,109 @@ namespace hooks
 		}
 	}
 
-	bool AttackActionHook::PerformAttackAction(RE::TESActionData *a_actionData)
-	{
-		return _PerformAttackAction(a_actionData);
+	// bool AttackActionHook::PerformAttackAction(RE::TESActionData *a_actionData)
+	// {
+	// 	return _PerformAttackAction(a_actionData);
 
-		// auto protagonist = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
-		// auto enemy = protagonist ? protagonist->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
+	// 	auto protagonist = a_actionData && a_actionData->source ? a_actionData->source->As<RE::Actor>() : nullptr;
+	// 	auto enemy = protagonist ? protagonist->GetActorRuntimeData().currentCombatTarget.get() : nullptr;
 
-		// if (enemy && enemy.get())
-		// {
-		// 	if (GetLOS(protagonist, enemy.get()) && (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
-		// 	&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
-		// 	<= Block::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
-		// 	&& !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
-		// 	{
-		// 		logger::info("reqs passed");
+	// 	if (enemy && enemy.get())
+	// 	{
+	// 		if (GetLOS(protagonist, enemy.get()) && (enemy.get()->IsAttacking() || OnMeleeHitHook::GetBoolVariable(enemy.get(), "IsAttacking")) 
+	// 		&& OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
+	// 		<= Block::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
+	// 		&& !OnMeleeHitHook::IsRangedCombatant(enemy.get()))
+	// 		{
+	// 			logger::info("reqs passed");
 
-		// 		RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
-		// 		auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
+	// 			RE::BGSAttackData *attackdata = OnMeleeHitHook::GetSingleton()->get_attackData(enemy.get());
+	// 			auto angle = OnMeleeHitHook::GetSingleton()->get_angle_he_me(protagonist, enemy.get(), attackdata);
 
-		// 		float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
+	// 			float attackAngle = attackdata ? attackdata->data.strikeAngle : 35.0f;
 
-		// 		if (abs(angle) < attackAngle)
-		// 		{
-		// 			logger::info("angle active");
+	// 			if (abs(angle) < attackAngle)
+	// 			{
+	// 				logger::info("angle active");
 
-		// 			if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
-		// 			{
-		// 				logger::info("H2H active");
-		// 				// if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get())
-		// 				// && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
-		// 				// {
+	// 				if (OnMeleeHitHook::IsHandToHandMelee(protagonist))
+	// 				{
+	// 					logger::info("H2H active");
+	// 					// if (protagonist->HasKeywordString("ActorTypeNPC") && enemy.get()->HasKeywordString("ActorTypeNPC") && OnMeleeHitHook::isHumanoid(enemy.get())
+	// 					// && OnMeleeHitHook::isHumanoid(protagonist) && OnMeleeHitHook::IsHandToHandMelee(enemy.get()))
+	// 					// {
 
-		// 				// }
-		// 				if (Block::GetSingleton()->PerformBlockAction(protagonist, enemy.get(), true))
-		// 				{
-		// 					return true;
-		// 				}
-		// 			}
-		// 			else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
-		// 			{
-		// 				logger::info("Dualw active");
+	// 					// }
+	// 					if (Block::GetSingleton()->PerformBlockAction(protagonist, enemy.get(), true))
+	// 					{
+	// 						return true;
+	// 					}
+	// 				}
+	// 				else if (OnMeleeHitHook::IsDualWieldMelee(protagonist))
+	// 				{
+	// 					logger::info("Dualw active");
 
-		// 				if (Block::GetSingleton()->PerformBlockAction(protagonist, enemy.get()))
-		// 				{
-		// 					return true;
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
+	// 					if (Block::GetSingleton()->PerformBlockAction(protagonist, enemy.get()))
+	// 					{
+	// 						return true;
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
 
-		// AttackRangeCheck::CheckPathing(enemy.get(), protagonist)
+	// 	AttackRangeCheck::CheckPathing(enemy.get(), protagonist)
 
-		// if (OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) > OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) && OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) > 0.0f)
-		// {
-		// 	if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && protagonist->GetActorRuntimeData().currentProcess)
-		// 	{
-		// 		if (auto result = Block::PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, Block::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
-		// 		{
-		// 			protagonist->SetGraphVariableBool("bNUB_IsBlocking", false);
-		// 			logger::info("{} successfully stopped blocking", protagonist->GetName());
-		// 			return true;
-		// 		}
-		// 	}
-		// }
+	// 	if (OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) > OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) && OnMeleeHitHook::GetActorValuePercent(protagonist, RE::ActorValue::kStamina) > 0.0f)
+	// 	{
+	// 		if (auto IdleAnimation = RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_StopBlocking"); IdleAnimation && protagonist->GetActorRuntimeData().currentProcess)
+	// 		{
+	// 			if (auto result = Block::PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, Block::DefaultObject::kActionLeftRelease, IdleAnimation, true, false, nullptr); result)
+	// 			{
+	// 				protagonist->SetGraphVariableBool("bNUB_IsBlocking", false);
+	// 				logger::info("{} successfully stopped blocking", protagonist->GetName());
+	// 				return true;
+	// 			}
+	// 		}
+	// 	}
 
-		// if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
-		// {
-		// 	logger::info("{} is blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
-		// }
-		// else
-		// {
-		// 	logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
-		// }
+	// 	if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
+	// 	{
+	// 		logger::info("{} is blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+	// 	}
+	// 	else
+	// 	{
+	// 		logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+	// 	}
 
 		
 
-		// auto IdleAnimation = unarmed ? RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_H2H_Block_NPC") : RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_DW_Block_NPC");
-		// if (!IdleAnimation)
-		// {
-		// 	logger::info("Idle not found");
-		// 	return;
-		// }
+	// 	auto IdleAnimation = unarmed ? RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_H2H_Block_NPC") : RE::TESForm::LookupByEditorID<RE::TESIdleForm>("NUB_DW_Block_NPC");
+	// 	if (!IdleAnimation)
+	// 	{
+	// 		logger::info("Idle not found");
+	// 		return;
+	// 	}
 
-		// auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, false, false, nullptr);
+	// 	auto result = PlayIdle(protagonist->GetActorRuntimeData().currentProcess, protagonist, DefaultObject::kActionLeftAttack, IdleAnimation, false, false, nullptr);
 
-		// if (result)
-		// {
-		// 	logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
-		// }else{
+	// 	if (result)
+	// 	{
+	// 		logger::info("{} successfully played block idle against {}", protagonist->GetName(), enemy->GetName());
+	// 	}else{
 
-		// 	logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
-		// }
+	// 		logger::info("{} failed to play block idle against {}", protagonist->GetName(), enemy->GetName());
+	// 	}
 
-		// if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
-		// {
-		// 	logger::info("{} is blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
-		// }
-		// else
-		// {
-		// 	logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
-		// }
-	}
+	// 	if (OnMeleeHitHook::GetBoolVariable(protagonist, "Isblocking"))
+	// 	{
+	// 		logger::info("{} is blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+	// 	}
+	// 	else
+	// 	{
+	// 		logger::info("{} is not blocking. GetWantBlock: {} iWantBlock: {} iState_NPCBlocking: {} iBlockState: {} ", protagonist->GetName(), static_cast<int>(protagonist->AsActorState()->actorState2.wantBlocking), OnMeleeHitHook::GetIntVariable(protagonist, "iWantBlock"), OnMeleeHitHook::GetIntVariable(protagonist, "iState_NPCBlocking"), OnMeleeHitHook::GetIntVariable(protagonist, "iBlockState"));
+	// 	}
+	// }
 
 	void OnMeleeHitHook::Process_Updates(RE::Actor *a_actor, std::chrono::steady_clock::time_point time_now)
 	{
