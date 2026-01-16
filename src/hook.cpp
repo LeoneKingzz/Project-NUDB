@@ -1807,8 +1807,12 @@ namespace hooks
 		}
 	}
 
-	float Block::get_block_chance(RE::Actor *protagonist){
-		float Score = 0.0f;
+	bool Block::get_block_chance(RE::Actor *protagonist, RE::Actor *enemy)
+	{
+		bool valid = false;
+		float score = 0.0f;
+
+		const auto combat_threat_value = OnMeleeHitHook::GetSingleton()->get_personal_threatRatio(protagonist, enemy);
 
 		/////////////////////////////////////////////////Defensive & Skirmish Weighting ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1817,15 +1821,26 @@ namespace hooks
 			RE::TESCombatStyle *style = protagonist->GetActorRuntimeData().combatController->combatStyle;
 			if (style)
 			{
-				Score += style->generalData.defensiveMult * block_chance.Defensive_Weighting;
+				if (combat_threat_value > 0 && style->generalData.defensiveMult > 0)
+				{
+					score += style->generalData.defensiveMult / combat_threat_value;
+				}
 			}
 		}
 
 		/////////////////////////////////////////////////Sneak Skill Weighting /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		Score += (protagonist->AsActorValueOwner()->GetActorValue(RE::ActorValue::kBlock) / 100.0f) * block_chance.Block_Weighting;
+		score += protagonist->AsActorValueOwner()->GetActorValue(RE::ActorValue::kBlock) / 100.0f;
 
-		return Score;
+		if(score > 0.0f)
+		{
+			if (OnMeleeHitHook::GetSingleton()->GenerateRandomFloat(0.0f, 10.0f) <= score)
+			{
+				valid = true;
+			}
+		}
+
+		return valid;
 	}
 
 	RE::Actor *OnMeleeHitHook::GetCombatTarget(RE::Actor *a_actor)
@@ -1843,9 +1858,9 @@ namespace hooks
 
 	void OnMeleeHitHook::AssessBlockSituation(RE::Actor *protagonist, RE::Actor *enemy)
 	{
-		if (GetLOS(protagonist, enemy) && (enemy->IsAttacking() || GetBoolVariable(enemy, "IsAttacking")) 
-		&& GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && GetSingleton()->GenerateRandomFloat(0.0f, 1.0f) 
-		<= Block::GetSingleton()->get_block_chance(protagonist) && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
+
+		if (Block::GetSingleton()->get_block_chance(protagonist, enemy) && GetLOS(protagonist, enemy) && (enemy->IsAttacking() || GetBoolVariable(enemy, "IsAttacking")) 
+		&& GetActorValuePercent(protagonist, RE::ActorValue::kStamina) >= 0.1 && protagonist->GetActorRuntimeData().currentProcess && !protagonist->IsPlayerRef() 
 		&& !IsRangedCombatant(enemy))
 		{
 

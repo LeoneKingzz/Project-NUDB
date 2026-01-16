@@ -746,7 +746,7 @@ namespace hooks
 			return func(a_this, a_actor, a_action, a_idle, a_arg5, a_arg6, a_target);
 		};
 
-		float get_block_chance(RE::Actor* protagonist);
+		bool get_block_chance(RE::Actor *protagonist, RE::Actor *enemy);
 
 		struct BlockChance_factors
 		{
