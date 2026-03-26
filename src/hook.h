@@ -210,8 +210,6 @@ namespace hooks
 		void register_allied_target(RE::Actor *a_actor, RE::TESObjectREFR *a_ally);
 		RE::TESObjectREFR *get_allied_target(RE::Actor *a_actor);
 		void clear_allied_targets(RE::Actor *a_actor, bool clear_all);
-		static void Mod_CombatInventory_Claws(RE::Actor *a_actor, RE::CombatController *a_controller);
-		static void Mod_CombatInventory_Claws_Reset(RE::Actor *a_actor, RE::CombatController *a_controller);
 		static bool getrace_IsWerebeast(RE::Actor *a_actor)
 		{
 			bool result = false;
